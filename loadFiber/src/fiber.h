@@ -4,24 +4,6 @@
 #include <vector>
 #include <sstream>
 
-#define MIN(i,j)  ((i)<(j)?(i):(j))
-#define MAX(i,j)  ((i)>(j)?(i):(j))
-
-enum DatasetType 
-{
-    BOT_INITIALIZED = 0,
-    MESH,
-    VECTORS,
-    TENSORS,
-    ODFS,
-    MAXIMAS,
-    FIBERS,
-    SURFACE,
-    ISO_SURFACE,
-    NOT_INITIALIZED,
-    FIBERSGROUP
-};
-
 
 class fiber
 {
@@ -33,12 +15,6 @@ public:
     bool load( const std::string &filename );
 
 private:
-	bool loadVTK(const std::string &filename );
-
-	bool loadTRK(const std::string &filename );
-    bool loadCamino(const std::string &filename );
-    bool loadMRtrix(const std::string &filename );
-    bool loadPTK(const std::string &filename );
     bool loadDmri(const std::string &filename );
 	void createColorArray( const bool colorsLoadedFromFile );
 	int  getLineCount();

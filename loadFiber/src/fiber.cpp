@@ -1,11 +1,17 @@
 #include "fiber.h"
-#include <stdio.h>
 #include <cmath>
-#include <stdlib.h>
-#include <climits>
 
 
 fiber::fiber(void)
+:   m_colorArray(),
+    m_countLines( 0 ),
+    m_countPoints( 0 ),
+    m_linePointers(),
+    m_pointArray(),
+    m_normalArray(),
+    m_reverse(),
+    m_selected(),
+    m_filtered()
 {
 }
 
@@ -18,34 +24,8 @@ bool fiber::load( const std::string &filename )
 {
     bool res( false );
 
-    //wxString extension = filename.AfterLast( '.' );
-	//if(regex_search(filename.begin(),filename.end(),std::regex(".fib$")))
-    //{
-        /*if( loadVTK( filename ) )
-        {
-            res = true;
-        }
-        else
-        {*/
-            res = loadDmri( filename );
-        //}
-    /*}
-    else if(regex_search(filename.begin(),filename.end(),std::regex(".bundlesdata$")))
-    {
-        //res = loadPTK( filename );
-    }
-    else if(regex_search(filename.begin(),filename.end(),std::regex(".Bfloat$")))
-    {
-        //res = loadCamino( filename );
-    }
-    else if(regex_search(filename.begin(),filename.end(),std::regex(".trk$")))
-    {
-        //res = loadTRK( filename );
-    }
-    else if(regex_search(filename.begin(),filename.end(),std::regex(".tck$")))
-    {
-        //res = loadMRtrix( filename );
-    }
+    //for now, just ".fib" extension are supported. later find a way to support many extention.
+    res = loadDmri( filename );
 
     ///* OcTree points classification */
     //m_pOctree = new Octree( 2, m_pointArray, m_countPoints );
@@ -84,12 +64,6 @@ bool fiber::loadDmri( const std::string &filename )
     m_countPoints = 0;
     float back, front;
     std::stringstream ss;
-	float maxX = 0;
-    float minX = 1000000;
-	float maxY = 0;
-    float minY = 1000000;
-	float maxZ = 0;
-    float minZ = 1000000;
 
     for( int i = 0; i < m_countLines; i++ )
     {
@@ -131,13 +105,6 @@ bool fiber::loadDmri( const std::string &filename )
                 ss << pS3;
                 ss >> f3;
                 ss.clear();
-
-				minX = MIN(f1,minX);
-				maxX = MAX(f1,maxX);
-				minY = MIN(f2,minY);
-				maxY = MAX(f2,maxY);
-				minZ = MIN(f3,minZ);
-				maxZ = MAX(f3,maxZ);
                 
                 curLine[j * 3]  = f1;
                 curLine[j * 3 + 1] = f2;
@@ -166,13 +133,6 @@ bool fiber::loadDmri( const std::string &filename )
                 ss << pS3;
                 ss >> f3;
                 ss.clear();
-
-				minX = MIN(f1,minX);
-				maxX = MAX(f1,maxX);
-				minY = MIN(f2,minY);
-				maxY = MAX(f2,maxY);
-				minZ = MIN(f3,minZ);
-				maxZ = MAX(f3,maxZ);
                 
                 curLine[j * 3]  = f1;
                 curLine[j * 3 + 1] = f2;
@@ -237,14 +197,8 @@ bool fiber::loadDmri( const std::string &filename )
     }
 
     createColorArray( false );
-    m_type = FIBERS;
+    //m_type = FIBERS;
     m_fullPath = filename;
-
-//#ifdef __WXMSW__
-//    m_name = /*"-"+*/ filename.AfterLast( '\\' );
-//#else
-//    m_name = /*"-" +*/ filename.AfterLast( '/' );
-//#endif
 	
     return true;
 }

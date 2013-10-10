@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <iostream> 
-#include <stdlib.h>
-
 #include "fiber.h"
 
 int main( int argc, const char* argv[] )
@@ -11,6 +7,4 @@ int main( int argc, const char* argv[] )
 	fiber myFiber;
 
 	myFiber.load(fileName);
-
-	//finnish that thusday poutine time
 }
