@@ -129,17 +129,6 @@ void FiberApplication::display(GLContextData& contextData) const
     /* Save OpenGL state: */
     glPushAttrib(GL_ENABLE_BIT);
 
-    /* Enable texturing and use the texture uploaded in the initDisplay() method: */
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,dataItem->textureObjectId);
-
-    /* Render some textured objects here... */
-    // ...
-
-    /* Disable texture mapping and protect the texture object (important!): */
-    glBindTexture(GL_TEXTURE_2D,0);
-    glDisable(GL_TEXTURE_2D);
-
     /* Set up the animation transformation: */
     glPushMatrix();
 
@@ -178,22 +167,6 @@ void FiberApplication::initContext(GLContextData& contextData) const
     /* Create context data item and store it in the GLContextData object: */
     DataItem* dataItem=new DataItem;
     contextData.addDataItem(this,dataItem);
-
-    /* Now is the time to upload all needed texture data: */
-    glBindTexture(GL_TEXTURE_2D,dataItem->textureObjectId);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    GLfloat texImage[4][4]=
-    {
-        {0.0f, 0.0f, 1.0f, 1.0f},
-        {0.0f, 0.0f, 1.0f, 1.0f},
-        {1.0f, 1.0f, 0.0f, 0.0f},
-        {1.0f, 1.0f, 0.0f, 0.0f}
-    };
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,4,4,0,GL_LUMINANCE,GL_FLOAT,texImage);
-    glBindTexture(GL_TEXTURE_2D,0);
 
     /* Now is also the time to upload all display lists' contents: */
 	glNewList(dataItem->displayListId,GL_COMPILE);

@@ -1,6 +1,7 @@
 #include "fiber.h"
 #include <cmath>
-
+#include <float.h>
+#include <algorithm>    // std::max
 
 fiber::fiber(void)
 :   m_colorArray(),
@@ -199,6 +200,16 @@ bool fiber::loadDmri( const std::string &filename )
     float back, front;
     std::stringstream ss;
 
+    float minX = FLT_MAX ;
+    float maxX = 0;
+    float minY = FLT_MAX ;
+    float maxY = 0;
+    float minZ = FLT_MAX ;
+    float maxZ = 0;
+    float moyX = 0;
+    float moyY = 0;
+    float moyZ = 0;
+
     for( int i = 0; i < m_countLines; i++ )
     {
         res = fscanf( pFile, "%s %s %s", pS1, pS2, pS3 );
@@ -239,6 +250,13 @@ bool fiber::loadDmri( const std::string &filename )
                 ss >> f3;
                 ss.clear();
                 
+                minX = std::min(minX,f1);
+                maxX = std::max(maxX,f1);
+                minY = std::min(minY,f2);
+                maxY = std::max(maxY,f2);
+                minZ = std::min(minZ,f3);
+                maxZ = std::max(maxZ,f3);
+
                 curLine[j * 3]  = f1;
                 curLine[j * 3 + 1] = f2;
                 curLine[j * 3 + 2] = f3;
@@ -267,6 +285,13 @@ bool fiber::loadDmri( const std::string &filename )
                 ss >> f3;
                 ss.clear();
                 
+                minX = std::min(minX,f1);
+				maxX = std::max(maxX,f1);
+				minY = std::min(minY,f2);
+				maxY = std::max(maxY,f2);
+				minZ = std::min(minZ,f3);
+				maxZ = std::max(maxZ,f3);
+
                 curLine[j * 3]  = f1;
                 curLine[j * 3 + 1] = f2;
                 curLine[j * 3 + 2] = f3;
@@ -276,6 +301,10 @@ bool fiber::loadDmri( const std::string &filename )
             lines.push_back( curLine );
         }
     }
+
+    moyX = (maxX+minX)/2.0;
+    moyY = (maxY+minY)/2.0;
+    moyZ = (maxZ+minZ)/2.0;
 
     fclose( pFile );
     
@@ -316,16 +345,29 @@ bool fiber::loadDmri( const std::string &filename )
         m_reverse[i] = lineCounter;
     }
 
-    unsigned int pos = 0;
+    unsigned int 	pos = 0;
+    unsigned int 	index = 0;
+    float 			moy = moyX;
     std::vector< std::vector< float > >::iterator it;
 
     for( it = lines.begin(); it < lines.end(); it++ )
     {
         std::vector< float >::iterator it2;
+        index = 0;
 
         for( it2 = ( *it ).begin(); it2 < ( *it ).end(); it2++ )
         {
-            m_pointArray[pos++] = *it2;
+        	moy = moyX;
+        	if(index%3 == 1)
+        	{
+        		moy = moyY;
+        	}
+        	else if(index%3 == 2)
+        	{
+        		moy = moyZ;
+        	}
+            m_pointArray[pos++] = *it2 - moy;;
+        	index++;
         }
     }
 
