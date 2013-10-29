@@ -3,3 +3,4 @@
 
 # Ignore the build directoy
 build/
+loadFiber/CMakeFiles/

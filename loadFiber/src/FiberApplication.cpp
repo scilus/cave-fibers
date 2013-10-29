@@ -52,10 +52,10 @@ void FiberApplication::resetNavigationCallback(Misc::CallbackData* cbData)
     *********************************************************************/
 }
 
-FiberApplication::FiberApplication(int& argc,char**& argv)
-    :Vrui::Application(argc,argv),
+FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
+    :Vrui::Application(argc,argv,appDefaults),
      mainMenu(0)
-    {
+{
     /* Initialize the animation parameters: */
     for(int i=0;i<3;++i)
     {
@@ -96,18 +96,18 @@ void FiberApplication::frame(void)
     background threads, change the navigation transformation, etc.).
     *********************************************************************/
 
-    /* Get the time since the last frame: */
-    double frameTime=Vrui::getCurrentFrameTime();
+	/* Get the time since the last frame: */
+	double frameTime=Vrui::getCurrentFrameTime();
 
-    /* Change the model angles: */
-    for(int i=0;i<3;++i)
-    {
-        modelAngles[i]+=rotationSpeeds[i]*frameTime;
-        modelAngles[i]=Math::mod(modelAngles[i],Vrui::Scalar(360));
-    }
+	/* Change the model angles: */
+	for(int i=0;i<3;++i)
+		{
+		modelAngles[i]+=rotationSpeeds[i]*frameTime;
+		modelAngles[i]=Math::mod(modelAngles[i],Vrui::Scalar(360));
+		}
 
-    /* Request another rendering cycle to show the animation: */
-    Vrui::scheduleUpdate(Vrui::getApplicationTime()+1.0/125.0); // Aim for 125 FPS
+	/* Request another rendering cycle to show the animation: */
+	Vrui::requestUpdate();
 }
 
 void FiberApplication::display(GLContextData& contextData) const
@@ -140,6 +140,34 @@ void FiberApplication::display(GLContextData& contextData) const
     /* Call the display list created in the initDisplay() method: */
     glCallList(dataItem->displayListId);
 
+    glPushAttrib(GL_LIGHTING_BIT);
+    glDisable(GL_LIGHTING);
+
+    //draw fiber depending of the option choose by the user (It is not implemented for the moment)
+    if(mFibers.IsUseFakeTubes())
+    {
+    	mFibers.drawFakeTubes();
+    }
+    else if(mFibers.IsuseTransparency())
+    {
+    	glPushAttrib( GL_ALL_ATTRIB_BITS );
+		glEnable( GL_BLEND );
+		glBlendFunc( GL_ONE, GL_ONE );
+		glDepthMask( GL_FALSE );
+		mFibers.drawSortedLines();
+		glPopAttrib();
+    }
+    else if(mFibers.IsUseIntersectedFibers())
+    {
+    	mFibers.drawCrossingFibers();
+    }
+    else
+    {
+    	mFibers.drawFiber();
+    }
+
+    glPopAttrib();
+
     /* Go back to navigation coordinates: */
     glPopMatrix();
 
@@ -157,12 +185,15 @@ void FiberApplication::initContext(GLContextData& contextData) const
     object for retrieval in the display method.
     *********************************************************************/
 
-	 GLenum errorCode = glewInit();
+	//init glew lib
+	GLenum errorCode = glewInit();
 
 	if( GLEW_OK != errorCode )
 	{
 	   return;
 	}
+
+	mFibers.initializeBuffer();
 
     /* Create context data item and store it in the GLContextData object: */
     DataItem* dataItem=new DataItem;
@@ -175,23 +206,9 @@ void FiberApplication::initContext(GLContextData& contextData) const
 	glPushAttrib(GL_LIGHTING_BIT);
 	glDisable(GL_LIGHTING);
 
-	mFibers.initializeBuffer();
-
-	mFibers.draw();
 	glPopAttrib();
-
 
 	/* Finish the display list: */
 	glEndList();
-
-    /*glGenBuffers( 3, dataItem->bufferObjects );
-	glBindBuffer( GL_ARRAY_BUFFER, dataItem->bufferObjects[0] );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( GLfloat ) * mFibers.getLineCount() * 3, &mFibers.getPointArray()[0], GL_STATIC_DRAW );
-
-	glBindBuffer( GL_ARRAY_BUFFER, dataItem->bufferObjects[1] );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( GLfloat ) * mFibers.getLineCount() * 3, &mFibers.getColorArray()[0], GL_STATIC_DRAW );
-
-	glBindBuffer( GL_ARRAY_BUFFER, dataItem->bufferObjects[2] );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( GLfloat ) * mFibers.getLineCount() * 3, &mFibers.getNormalArray()[0], GL_STATIC_DRAW );*/
 }
 

@@ -67,7 +67,7 @@ class FiberApplication:public Vrui::Application,public GLObject
 
     //Constructors and destructors:
     public:
-    FiberApplication(int& argc,char**& argv); // Initializes the Vrui toolkit and the application
+    FiberApplication(int& argc,char**& argv,char**& appDefaults); // Initializes the Vrui toolkit and the application
     virtual ~FiberApplication(void); // Shuts down the Vrui toolkit
 
     //Methods from Vrui::Application:

@@ -1,6 +1,7 @@
 #include "fiber.h"
 #include <cmath>
 #include <float.h>
+#include <stdio.h>
 #include <algorithm>    // std::max
 
 fiber::fiber(void)
@@ -10,6 +11,8 @@ fiber::fiber(void)
     m_linePointers(),
     m_pointArray(),
     m_normalArray(),
+    m_cfStartOfLine(),
+    m_cfPointsPerLine(),
     m_reverse(),
     m_selected(),
     m_filtered(),
@@ -43,9 +46,6 @@ bool fiber::load( const std::string &filename )
 
     //for now, just ".fib" extension are supported. later find a way to support many extention.
     res = loadDmri( filename );
-
-    ///* OcTree points classification */
-    //m_pOctree = new Octree( 2, m_pointArray, m_countPoints );
     
     return res;
 }
@@ -74,12 +74,10 @@ void fiber::updateLinesShown()
 
 void fiber::initializeBuffer() const
 {
-    /*if( m_isInitialized)
+    if( m_isInitialized)
     {
         return;
     }
-
-    m_isInitialized = true;*/
 
     glGenBuffers( 3, m_bufferObjects );
     glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[0] );
@@ -90,47 +88,27 @@ void fiber::initializeBuffer() const
 
 	glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
 	glBufferData( GL_ARRAY_BUFFER, sizeof( GLfloat ) * m_countPoints * 3, &m_normalArray[0], GL_STATIC_DRAW );
-
-    //freeArrays();
 }
 
-void fiber::draw() const
+void fiber::initDraw()
 {
-    //setShader();
+	m_isInitialized = true;
+	setShader();
 
-    if( m_cachedThreshold != m_threshold )
-    {
-        //updateFibersColors();
-        //m_cachedThreshold = m_threshold;
-    }
+	if( m_cachedThreshold != m_threshold )
+	{
+		updateFibersColors();
+		m_cachedThreshold = m_threshold;
+	}
 
-    //initializeBuffer();
+	if(m_useIntersectedFibers)
+	{
+		findCrossingFibers();
+	}
+}
 
-    if( m_useFakeTubes )
-    {
-        //drawFakeTubes();
-        return;
-    }
-
-    if( m_useTransparency )
-    {
-        glPushAttrib( GL_ALL_ATTRIB_BITS );
-        glEnable( GL_BLEND );
-        glBlendFunc( GL_ONE, GL_ONE );
-        glDepthMask( GL_FALSE );
-        //drawSortedLines();
-        glPopAttrib();
-        return;
-    }
-
-    // If geometry shaders are supported, the shader will take care of the filtering
-    // Otherwise, use the drawCrossingFibers
-    if (m_useIntersectedFibers )
-    {
-        //drawCrossingFibers();
-        return;
-    }
-
+void fiber::drawFiber() const
+{
     glEnableClientState( GL_VERTEX_ARRAY );
     glEnableClientState( GL_COLOR_ARRAY );
     glEnableClientState( GL_NORMAL_ARRAY );
@@ -474,6 +452,7 @@ void fiber::createColorArray( const bool colorsLoadedFromFile )
     }
 }
 
+//method not tested
 void fiber::resetColorArray()
 {
     float *pColorData( NULL );
@@ -538,10 +517,9 @@ void fiber::resetColorArray()
     m_fiberColorationMode = NORMAL_COLOR;
 }
 
-void fiber::drawCrossingFibers()
+//method not tested
+void fiber::drawCrossingFibers() const
 {
-    /*findCrossingFibers();
-
     glEnableClientState( GL_VERTEX_ARRAY );
     glEnableClientState( GL_COLOR_ARRAY );
     glEnableClientState( GL_NORMAL_ARRAY );
@@ -573,7 +551,97 @@ void fiber::drawCrossingFibers()
 
     glDisableClientState( GL_VERTEX_ARRAY );
     glDisableClientState( GL_COLOR_ARRAY );
-    glDisableClientState( GL_NORMAL_ARRAY );*/
+    glDisableClientState( GL_NORMAL_ARRAY );
+}
+
+void fiber::findCrossingFibers()
+{
+    /*if (   m_cfDrawDirty
+        || m_xDrawn != SceneManager::getInstance()->getSliceX()
+        || m_yDrawn != SceneManager::getInstance()->getSliceY()
+        || m_zDrawn != SceneManager::getInstance()->getSliceZ()
+        || m_axialShown    != SceneManager::getInstance()->isAxialDisplayed()
+        || m_coronalShown  != SceneManager::getInstance()->isCoronalDisplayed()
+        || m_sagittalShown != SceneManager::getInstance()->isSagittalDisplayed() )
+    {
+        m_xDrawn = SceneManager::getInstance()->getSliceX();
+        m_yDrawn = SceneManager::getInstance()->getSliceY();
+        m_zDrawn = SceneManager::getInstance()->getSliceZ();
+        m_axialShown    = SceneManager::getInstance()->isAxialDisplayed();
+        m_coronalShown  = SceneManager::getInstance()->isCoronalDisplayed();
+        m_sagittalShown = SceneManager::getInstance()->isSagittalDisplayed();
+
+        float xVoxSize = DatasetManager::getInstance()->getVoxelX();
+        float yVoxSize = DatasetManager::getInstance()->getVoxelY();
+        float zVoxSize = DatasetManager::getInstance()->getVoxelZ();
+
+        m_cfDrawDirty = true;
+
+        // Determine X, Y and Z range
+        const float xMin( (m_xDrawn + 0.5f) * xVoxSize - m_thickness );
+        const float xMax( (m_xDrawn + 0.5f) * xVoxSize + m_thickness );
+        const float yMin( (m_yDrawn + 0.5f) * yVoxSize - m_thickness );
+        const float yMax( (m_yDrawn + 0.5f) * yVoxSize + m_thickness );
+        const float zMin( (m_zDrawn + 0.5f) * zVoxSize - m_thickness );
+        const float zMax( (m_zDrawn + 0.5f) * zVoxSize + m_thickness );
+
+        bool lineStarted(false);
+
+        m_cfStartOfLine.clear();
+        m_cfPointsPerLine.clear();
+
+        unsigned int index( 0 );
+        unsigned int point( 0 );
+        for ( unsigned int line( 0 ); line < static_cast<unsigned int>(m_countLines); ++line )
+        {
+            if ( m_selected[line] && !m_filtered[line] )
+            {
+                for ( unsigned int i( 0 ); i < static_cast<unsigned int>(getPointsPerLine(line)); ++i, ++point, index += 3 )
+                {
+                    if ( m_sagittalShown && xMin <= m_pointArray[index] && xMax >= m_pointArray[index] )
+                    {
+                        if ( !lineStarted )
+                        {
+                            m_cfStartOfLine.push_back(point);
+                            m_cfPointsPerLine.push_back(0);
+                            lineStarted = true;
+                        }
+                        ++m_cfPointsPerLine.back();
+                    }
+                    else if ( m_coronalShown && yMin <= m_pointArray[index + 1] && yMax >= m_pointArray[index + 1] )
+                    {
+                        if ( !lineStarted )
+                        {
+                            m_cfStartOfLine.push_back(point);
+                            m_cfPointsPerLine.push_back(0);
+                            lineStarted = true;
+                        }
+                        ++m_cfPointsPerLine.back();
+                    }
+                    else if ( m_axialShown && zMin <= m_pointArray[index + 2] && zMax >= m_pointArray[index + 2] )
+                    {
+                        if ( !lineStarted )
+                        {
+                            m_cfStartOfLine.push_back(point);
+                            m_cfPointsPerLine.push_back(0);
+                            lineStarted = true;
+                        }
+                        ++m_cfPointsPerLine.back();
+                    }
+                    else
+                    {
+                        lineStarted = false;
+                    }
+                }
+                lineStarted = false;
+            }
+            else
+            {
+                point += getPointsPerLine(line);
+                index += getPointsPerLine(line) * 3;
+            }
+        }
+    }*/
 }
 
 int fiber::getLineCount() const
@@ -592,6 +660,19 @@ const std::vector< float >& fiber::getColorArray() const
 const std::vector< float >& fiber::getNormalArray() const
 {
 	return m_normalArray;
+}
+
+const bool& fiber::IsUseFakeTubes() const
+{
+	return m_useFakeTubes;
+}
+const bool& fiber::IsuseTransparency() const
+{
+	return m_useTransparency;
+}
+const bool& fiber::IsUseIntersectedFibers() const
+{
+	return m_useIntersectedFibers;
 }
 
 float fiber::getPointValue( int ptIndex )
@@ -676,31 +757,18 @@ void fiber::releaseShader()
     }*/
 }
 
-void fiber::drawFakeTubes()
+//method not tested
+void fiber::drawFakeTubes() const
 {
     /*if( ! m_normalsPositive )
     {
         switchNormals( false );
-    }
+    }*/
 
-    GLfloat *pColors  = NULL;
-    GLfloat *pNormals = NULL;
-    pColors  = &m_colorArray[0];
-    pNormals = &m_normalArray[0];
-
-    if( SceneManager::getInstance()->isPointMode() )
-    {
-        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-    }
-    else
-    {
-        glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-    }
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
     if ( m_useIntersectedFibers )
     {
-        findCrossingFibers();
-
         for( unsigned int i = 0; i < m_cfStartOfLine.size(); ++i )
         {
             if ( 3 < m_cfPointsPerLine[i] )
@@ -733,8 +801,8 @@ void fiber::drawFakeTubes()
 
                 for( int k = 0; k < getPointsPerLine( i ); ++k )
                 {
-                    glNormal3f( pNormals[idx], pNormals[idx + 1], pNormals[idx + 2] );
-                    glColor3f( pColors[idx],  pColors[idx + 1],  pColors[idx + 2] );
+                    glNormal3f( m_normalArray[idx], m_normalArray[idx + 1], m_normalArray[idx + 2] );
+                    glColor3f( m_colorArray[idx],  m_colorArray[idx + 1],  m_colorArray[idx + 2] );
                     glTexCoord2f( -1.0f, 0.0f );
                     glVertex3f( m_pointArray[idx], m_pointArray[idx + 1], m_pointArray[idx + 2] );
                     glTexCoord2f( 1.0f, 0.0f );
@@ -745,13 +813,14 @@ void fiber::drawFakeTubes()
                 glEnd();
             }
         }
-    }*/
+    }
 }
 
-void fiber::drawSortedLines()
+//method not tested
+void fiber::drawSortedLines() const
 {
     // Only sort those lines we see.
-    /*unsigned int *pSnippletSort = NULL;
+    unsigned int *pSnippletSort = NULL;
     unsigned int *pLineIds      = NULL;
 
     int nbSnipplets = 0;
@@ -793,7 +862,7 @@ void fiber::drawSortedLines()
     glGetFloatv( GL_PROJECTION_MATRIX, projMatrix );
 
     // Compute z values of lines (in our case: starting points only).
-    vector< float > zVals( nbSnipplets );
+    std::vector< float > zVals( nbSnipplets );
 
     for( int i = 0; i < nbSnipplets; ++i )
     {
@@ -803,7 +872,7 @@ void fiber::drawSortedLines()
                               + m_pointArray[id + 1] * projMatrix[7] + m_pointArray[id + 2] * projMatrix[11] + projMatrix[15] );
     }
 
-    sort( &pSnippletSort[0], &pSnippletSort[nbSnipplets], IndirectComp< vector< float > > ( zVals ) );
+    //sort( &pSnippletSort[0], &pSnippletSort[nbSnipplets], IndirectComp< vector< float > > ( zVals ) );
 
     float *pColors  = NULL;
     float *pNormals = NULL;
@@ -815,14 +884,16 @@ void fiber::drawSortedLines()
 	pNormals = ( float * ) glMapBuffer( GL_ARRAY_BUFFER, GL_READ_ONLY );
 	glUnmapBuffer( GL_ARRAY_BUFFER );
 
-    if( SceneManager::getInstance()->isPointMode() )
+    /*if( SceneManager::getInstance()->isPointMode() )
     {
         glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
     }
     else
     {
         glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-    }
+    }*/
+
+	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -839,10 +910,10 @@ void fiber::drawSortedLines()
             int idx3 = idx * 3;
             int id2  = pLineIds[( pSnippletSort[i] << 1 ) + 1];
             int id23 = id2 * 3;
-            glColor4f(  pColors[idx3 + 0],       pColors[idx3 + 1],       pColors[idx3 + 2],   m_localizedAlpha[idx] * m_alpha );
+            //glColor4f(  pColors[idx3 + 0],       pColors[idx3 + 1],       pColors[idx3 + 2],   m_localizedAlpha[idx] * m_alpha );
             glNormal3f( pNormals[idx3 + 0],      pNormals[idx3 + 1],      pNormals[idx3 + 2] );
             glVertex3f( m_pointArray[idx3 + 0],  m_pointArray[idx3 + 1],  m_pointArray[idx3 + 2] );
-            glColor4f(  pColors[id23 + 0],       pColors[id23 + 1],       pColors[id23 + 2],   m_localizedAlpha[id2] * m_alpha );
+            //glColor4f(  pColors[id23 + 0],       pColors[id23 + 1],       pColors[id23 + 2],   m_localizedAlpha[id2] * m_alpha );
             glNormal3f( pNormals[id23 + 0],      pNormals[id23 + 1],      pNormals[id23 + 2] );
             glVertex3f( m_pointArray[id23 + 0],  m_pointArray[id23 + 1],  m_pointArray[id23 + 2] );
         }
@@ -858,10 +929,10 @@ void fiber::drawSortedLines()
             int idx3 = idx * 3;
             int id2  = pLineIds[( pSnippletSort[i] << 1 ) + 1];
             int id23 = id2 * 3;
-            glColor4f(  pColors[idx3 + 0],       pColors[idx3 + 1],       pColors[idx3 + 2],   m_alpha );
+            //glColor4f(  pColors[idx3 + 0],       pColors[idx3 + 1],       pColors[idx3 + 2],   m_alpha );
             glNormal3f( pNormals[idx3 + 0],      pNormals[idx3 + 1],      pNormals[idx3 + 2] );
             glVertex3f( m_pointArray[idx3 + 0],  m_pointArray[idx3 + 1],  m_pointArray[idx3 + 2] );
-            glColor4f(  pColors[id23 + 0],       pColors[id23 + 1],       pColors[id23 + 2],   m_alpha );
+            //glColor4f(  pColors[id23 + 0],       pColors[id23 + 1],       pColors[id23 + 2],   m_alpha );
             glNormal3f( pNormals[id23 + 0],      pNormals[id23 + 1],      pNormals[id23 + 2] );
             glVertex3f( m_pointArray[id23 + 0],  m_pointArray[id23 + 1],  m_pointArray[id23 + 2] );
         }
@@ -870,7 +941,6 @@ void fiber::drawSortedLines()
     glEnd();
     glDisable( GL_BLEND );
 
-    // FIXME: store these later on!
     delete[] pSnippletSort;
-    delete[] pLineIds;*/
+    delete[] pLineIds;
 }

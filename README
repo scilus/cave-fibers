@@ -1,0 +1,42 @@
+//BUILDING
+////////////////////////////////////////////////////////////////
+
+Building on linux utilizes cmake and make.
+
+STEP 1 Install Vrui lib
+////////////////////////////////////////////////////////////////
+- Download the VRUI librairy from http://idav.ucdavis.edu/~okreylos/ResDev/Vrui/Download.html (take the version 1.0-068)
+- Untar in a local directory
+	% tar -zxf Vrui-1.0-068.tar.gz 
+    % cd Vrui-1.0-068
+- In the makefile set INSTALLDIR to "/opt/VR/Vrui-1.0-068" 
+- Fix a bug in VRDeviceDaemon/VRDeviceManager.cpp
+	Change: "if(trackerReportMask==fullTrackerReportMask)" to "if(trackerReportMask != 0)"
+- compile with make
+- install with sudo make install
+
+STEP 2 Build Cave_Fiber
+////////////////////////////////////////////////////////////////
+The project should be built in the "build" directory. Assuming 
+the currect working directory to be project's main directory, 
+the following steps should do the trick:
+
+> cd build
+> PKG_CONFIG_PATH=../pkgconfig/ ccmake ../
+The PKG_CONFIG_PATH is for link cmake to the Vrui librairy.
+PRESS 'c' for configuration
+Specify the VRUI include Folder. Probably /opt/VR/Vrui-1.0-068/include
+PRESS 'c' again for further configuration
+PRESS 'g' to generate the build system including the Makefiles.
+> make
+
+For the moment the poossibility to choose a file are not implemented. 
+Copy a .fib file to the build folder. The file name are fibers.fib, 
+you can change it in src/fiberapplication.cpp:  
+	change: std::string fileName = "fibers.fib"; to std::string fileName = "'filepath'.fib"
+
+
+Now the "build" directory should contain an executable named Cave_Fibers.
+Inside "build" the program can be started with the following command:
+
+> ./Cave_Fibers

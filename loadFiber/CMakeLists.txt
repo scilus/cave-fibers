@@ -26,7 +26,7 @@ endif()
 # Setup Vrui
 set(VRUI_INCLUDE_DIR "" CACHE FILEPATH "Path to vrui include")
 
-PKG_SEARCH_MODULE(VRUI REQUIRED Vrui-2.7 Vrui)
+PKG_SEARCH_MODULE(VRUI REQUIRED Vrui-1.0 Vrui)
 string(REPLACE "-framework;" "-framework " VRUI_LDFLAGS "${VRUI_LDFLAGS}")
 include_directories(${VRUI_INCLUDE_DIR})
 set(LIBS ${LIBS} ${VRUI_LDFLAGS})

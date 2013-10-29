@@ -36,17 +36,30 @@ public:
 
     void 	initializeBuffer() const;
 
-    void 	draw() const;
+    void 	drawFiber() const;
+
+    void    drawFakeTubes() const;
+	void    drawSortedLines() const;
+	void   	drawCrossingFibers() const;
 
     float   getFiberLength( const int fiberId ) const;
 
     void    resetColorArray();
+
+    void 	initDraw();
+
+    void 	findCrossingFibers();
 
     //getter setters
     int  	getLineCount() const;
     const std::vector< float >&	getPointArray() const;
 	const std::vector< float >&	getColorArray() const;
 	const std::vector< float >&	getNormalArray() const;
+
+	const bool& IsUseFakeTubes() const;
+	const bool& IsuseTransparency() const;
+	const bool& IsUseIntersectedFibers() const;
+
 
 private:
     bool 	loadDmri(const std::string &filename );
@@ -57,10 +70,6 @@ private:
 
 	int  	getPointsPerLine(const int lineId ) const;
 	int  	getStartIndexForLine( const int lineId ) const;
-
-	void    drawFakeTubes();
-	void    drawSortedLines();
-	void   	drawCrossingFibers();
 
 	void 	setShader();
 	void 	releaseShader();
@@ -74,6 +83,8 @@ private:
 	std::vector< int >		m_reverse;
     std::vector< bool >		m_selected;
     std::vector< bool >		m_filtered;
+    std::vector< unsigned int > m_cfStartOfLine;
+    std::vector< unsigned int > m_cfPointsPerLine;
 	int						m_type;
 	std::string				m_fullPath;
 	bool                  	m_fibersInverted;
