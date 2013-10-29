@@ -25,9 +25,9 @@ class FiberApplication:public Vrui::Application,public GLObject
     {
         //Elements:
         public:
-        GLuint 	textureObjectId; // Texture object ID of some texture
-        GLuint 	displayListId; // Display list ID of some display list
-        GLuint* bufferObjects;
+        GLuint     	textureObjectId; // Texture object ID of some texture
+        GLuint     	displayListId; // Display list ID of some display list
+        GLuint* 	bufferObjects;
 
         //Constructors and destructors:
         DataItem(void)

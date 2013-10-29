@@ -25,19 +25,19 @@ fiber::fiber(void)
     m_cachedThreshold( 0.0f ),
     m_showFS( true )
 {
-	m_bufferObjects = new GLuint[3];
+    m_bufferObjects = new GLuint[3];
 }
 
 
 fiber::~fiber(void)
 {
-	m_linePointers.clear();
-	m_reverse.clear();
-	m_pointArray.clear();
-	m_normalArray.clear();
-	m_colorArray.clear();
+    m_linePointers.clear();
+    m_reverse.clear();
+    m_pointArray.clear();
+    m_normalArray.clear();
+    m_colorArray.clear();
 
-	glDeleteBuffers( 3, m_bufferObjects );
+    glDeleteBuffers( 3, m_bufferObjects );
 }
 
 bool fiber::load( const std::string &filename )
@@ -83,28 +83,28 @@ void fiber::initializeBuffer() const
     glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[0] );
     glBufferData( GL_ARRAY_BUFFER, sizeof( GLfloat ) * m_countPoints * 3, &m_pointArray[0], GL_STATIC_DRAW );
 
-	glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( GLfloat ) * m_countPoints * 3, &m_colorArray[0], GL_STATIC_DRAW );
+    glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
+    glBufferData( GL_ARRAY_BUFFER, sizeof( GLfloat ) * m_countPoints * 3, &m_colorArray[0], GL_STATIC_DRAW );
 
-	glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
-	glBufferData( GL_ARRAY_BUFFER, sizeof( GLfloat ) * m_countPoints * 3, &m_normalArray[0], GL_STATIC_DRAW );
+    glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
+    glBufferData( GL_ARRAY_BUFFER, sizeof( GLfloat ) * m_countPoints * 3, &m_normalArray[0], GL_STATIC_DRAW );
 }
 
 void fiber::initDraw()
 {
-	m_isInitialized = true;
-	setShader();
+    m_isInitialized = true;
+    setShader();
 
-	if( m_cachedThreshold != m_threshold )
-	{
-		updateFibersColors();
-		m_cachedThreshold = m_threshold;
-	}
+    if( m_cachedThreshold != m_threshold )
+    {
+        updateFibersColors();
+        m_cachedThreshold = m_threshold;
+    }
 
-	if(m_useIntersectedFibers)
-	{
-		findCrossingFibers();
-	}
+    if(m_useIntersectedFibers)
+    {
+        findCrossingFibers();
+    }
 }
 
 void fiber::drawFiber() const
@@ -114,21 +114,21 @@ void fiber::drawFiber() const
     glEnableClientState( GL_NORMAL_ARRAY );
 
     glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[0] );
-	glVertexPointer( 3, GL_FLOAT, 0, 0 );
+    glVertexPointer( 3, GL_FLOAT, 0, 0 );
 
-	if( m_showFS )
-	{
-		glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
-		glColorPointer( 3, GL_FLOAT, 0, 0 );
-	}
-	else
-	{
-		glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
-		glColorPointer( 3, GL_FLOAT, 0, 0 );
-	}
+    if( m_showFS )
+    {
+        glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
+        glColorPointer( 3, GL_FLOAT, 0, 0 );
+    }
+    else
+    {
+        glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
+        glColorPointer( 3, GL_FLOAT, 0, 0 );
+    }
 
-	glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
-	glNormalPointer( GL_FLOAT, 0, 0 );
+    glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
+    glNormalPointer( GL_FLOAT, 0, 0 );
 
     for( int i = 0; i < m_countLines; ++i )
     {
@@ -264,11 +264,11 @@ bool fiber::loadDmri( const std::string &filename )
                 ss.clear();
                 
                 minX = std::min(minX,f1);
-				maxX = std::max(maxX,f1);
-				minY = std::min(minY,f2);
-				maxY = std::max(maxY,f2);
-				minZ = std::min(minZ,f3);
-				maxZ = std::max(maxZ,f3);
+                maxX = std::max(maxX,f1);
+                minY = std::min(minY,f2);
+                maxY = std::max(maxY,f2);
+                minZ = std::min(minZ,f3);
+                maxZ = std::max(maxZ,f3);
 
                 curLine[j * 3]  = f1;
                 curLine[j * 3 + 1] = f2;
@@ -323,9 +323,9 @@ bool fiber::loadDmri( const std::string &filename )
         m_reverse[i] = lineCounter;
     }
 
-    unsigned int 	pos = 0;
-    unsigned int 	index = 0;
-    float 			moy = moyX;
+    unsigned int     pos = 0;
+    unsigned int     index = 0;
+    float             moy = moyX;
     std::vector< std::vector< float > >::iterator it;
 
     for( it = lines.begin(); it < lines.end(); it++ )
@@ -335,24 +335,24 @@ bool fiber::loadDmri( const std::string &filename )
 
         for( it2 = ( *it ).begin(); it2 < ( *it ).end(); it2++ )
         {
-        	moy = moyX;
-        	if(index%3 == 1)
-        	{
-        		moy = moyY;
-        	}
-        	else if(index%3 == 2)
-        	{
-        		moy = moyZ;
-        	}
+            moy = moyX;
+            if(index%3 == 1)
+            {
+                moy = moyY;
+            }
+            else if(index%3 == 2)
+            {
+                moy = moyZ;
+            }
             m_pointArray[pos++] = *it2 - moy;;
-        	index++;
+            index++;
         }
     }
 
     createColorArray( false );
     //m_type = FIBERS;
     m_fullPath = filename;
-	
+
     return true;
 }
 
@@ -458,8 +458,8 @@ void fiber::resetColorArray()
     float *pColorData( NULL );
     float *pColorData2( &m_colorArray[0] );
 
-	glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
-	pColorData = ( float * ) glMapBuffer( GL_ARRAY_BUFFER, GL_READ_WRITE );
+    glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
+    pColorData = ( float * ) glMapBuffer( GL_ARRAY_BUFFER, GL_READ_WRITE );
 
     int pc = 0;
     float r, g, b, x1, x2, y1, y2, z1, z2, lastX, lastY, lastZ;
@@ -525,21 +525,21 @@ void fiber::drawCrossingFibers() const
     glEnableClientState( GL_NORMAL_ARRAY );
 
     glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[0] );
-	glVertexPointer( 3, GL_FLOAT, 0, 0 );
+    glVertexPointer( 3, GL_FLOAT, 0, 0 );
 
-	if( m_showFS )
-	{
-		glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
-		glColorPointer( 3, GL_FLOAT, 0, 0 );
-	}
-	else
-	{
-		glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
-		glColorPointer( 3, GL_FLOAT, 0, 0 );
-	}
+    if( m_showFS )
+    {
+        glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
+        glColorPointer( 3, GL_FLOAT, 0, 0 );
+    }
+    else
+    {
+        glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
+        glColorPointer( 3, GL_FLOAT, 0, 0 );
+    }
 
-	glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
-	glNormalPointer( GL_FLOAT, 0, 0 );
+    glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
+    glNormalPointer( GL_FLOAT, 0, 0 );
 
     for( unsigned int i = 0; i < m_cfStartOfLine.size(); ++i )
     {
@@ -651,28 +651,28 @@ int fiber::getLineCount() const
 
 const std::vector< float >& fiber::getPointArray() const
 {
-	return m_pointArray;
+    return m_pointArray;
 }
 const std::vector< float >& fiber::getColorArray() const
 {
-	return m_colorArray;
+    return m_colorArray;
 }
 const std::vector< float >& fiber::getNormalArray() const
 {
-	return m_normalArray;
+    return m_normalArray;
 }
 
 const bool& fiber::IsUseFakeTubes() const
 {
-	return m_useFakeTubes;
+    return m_useFakeTubes;
 }
 const bool& fiber::IsuseTransparency() const
 {
-	return m_useTransparency;
+    return m_useTransparency;
 }
 const bool& fiber::IsUseIntersectedFibers() const
 {
-	return m_useIntersectedFibers;
+    return m_useIntersectedFibers;
 }
 
 float fiber::getPointValue( int ptIndex )
@@ -878,11 +878,11 @@ void fiber::drawSortedLines() const
     float *pNormals = NULL;
 
     glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
-	pColors = ( float * ) glMapBuffer( GL_ARRAY_BUFFER, GL_READ_ONLY );
-	glUnmapBuffer( GL_ARRAY_BUFFER );
-	glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
-	pNormals = ( float * ) glMapBuffer( GL_ARRAY_BUFFER, GL_READ_ONLY );
-	glUnmapBuffer( GL_ARRAY_BUFFER );
+    pColors = ( float * ) glMapBuffer( GL_ARRAY_BUFFER, GL_READ_ONLY );
+    glUnmapBuffer( GL_ARRAY_BUFFER );
+    glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
+    pNormals = ( float * ) glMapBuffer( GL_ARRAY_BUFFER, GL_READ_ONLY );
+    glUnmapBuffer( GL_ARRAY_BUFFER );
 
     /*if( SceneManager::getInstance()->isPointMode() )
     {
@@ -893,7 +893,7 @@ void fiber::drawSortedLines() const
         glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
     }*/
 
-	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );

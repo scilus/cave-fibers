@@ -96,18 +96,18 @@ void FiberApplication::frame(void)
     background threads, change the navigation transformation, etc.).
     *********************************************************************/
 
-	/* Get the time since the last frame: */
-	double frameTime=Vrui::getCurrentFrameTime();
+    /* Get the time since the last frame: */
+    double frameTime=Vrui::getCurrentFrameTime();
 
-	/* Change the model angles: */
-	for(int i=0;i<3;++i)
-		{
-		modelAngles[i]+=rotationSpeeds[i]*frameTime;
-		modelAngles[i]=Math::mod(modelAngles[i],Vrui::Scalar(360));
-		}
+    /* Change the model angles: */
+    for(int i=0;i<3;++i)
+        {
+        modelAngles[i]+=rotationSpeeds[i]*frameTime;
+        modelAngles[i]=Math::mod(modelAngles[i],Vrui::Scalar(360));
+        }
 
-	/* Request another rendering cycle to show the animation: */
-	Vrui::requestUpdate();
+    /* Request another rendering cycle to show the animation: */
+    Vrui::requestUpdate();
 }
 
 void FiberApplication::display(GLContextData& contextData) const
@@ -146,24 +146,24 @@ void FiberApplication::display(GLContextData& contextData) const
     //draw fiber depending of the option choose by the user (It is not implemented for the moment)
     if(mFibers.IsUseFakeTubes())
     {
-    	mFibers.drawFakeTubes();
+        mFibers.drawFakeTubes();
     }
     else if(mFibers.IsuseTransparency())
     {
-    	glPushAttrib( GL_ALL_ATTRIB_BITS );
-		glEnable( GL_BLEND );
-		glBlendFunc( GL_ONE, GL_ONE );
-		glDepthMask( GL_FALSE );
-		mFibers.drawSortedLines();
-		glPopAttrib();
+        glPushAttrib( GL_ALL_ATTRIB_BITS );
+        glEnable( GL_BLEND );
+        glBlendFunc( GL_ONE, GL_ONE );
+        glDepthMask( GL_FALSE );
+        mFibers.drawSortedLines();
+        glPopAttrib();
     }
     else if(mFibers.IsUseIntersectedFibers())
     {
-    	mFibers.drawCrossingFibers();
+        mFibers.drawCrossingFibers();
     }
     else
     {
-    	mFibers.drawFiber();
+        mFibers.drawFiber();
     }
 
     glPopAttrib();
@@ -185,30 +185,30 @@ void FiberApplication::initContext(GLContextData& contextData) const
     object for retrieval in the display method.
     *********************************************************************/
 
-	//init glew lib
-	GLenum errorCode = glewInit();
+    //init glew lib
+    GLenum errorCode = glewInit();
 
-	if( GLEW_OK != errorCode )
-	{
-	   return;
-	}
+    if( GLEW_OK != errorCode )
+    {
+       return;
+    }
 
-	mFibers.initializeBuffer();
+    mFibers.initializeBuffer();
 
     /* Create context data item and store it in the GLContextData object: */
     DataItem* dataItem=new DataItem;
     contextData.addDataItem(this,dataItem);
 
     /* Now is also the time to upload all display lists' contents: */
-	glNewList(dataItem->displayListId,GL_COMPILE);
+    glNewList(dataItem->displayListId,GL_COMPILE);
 
-	/* Draw a wireframe cube 10" wide (unless a user scaled the navigation transformation): */
-	glPushAttrib(GL_LIGHTING_BIT);
-	glDisable(GL_LIGHTING);
+    /* Draw a wireframe cube 10" wide (unless a user scaled the navigation transformation): */
+    glPushAttrib(GL_LIGHTING_BIT);
+    glDisable(GL_LIGHTING);
 
-	glPopAttrib();
+    glPopAttrib();
 
-	/* Finish the display list: */
-	glEndList();
+    /* Finish the display list: */
+    glEndList();
 }
 
