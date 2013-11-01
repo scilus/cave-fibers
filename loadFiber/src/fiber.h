@@ -1,4 +1,6 @@
-#pragma once
+#ifndef FIBER_H_
+#define FIBER_H_
+
 #include <string>
 
 #include <vector>
@@ -12,12 +14,10 @@
 enum FibersColorationMode
 {
     NORMAL_COLOR        = 0,
-    CURVATURE_COLOR     = 1,
-    TORSION_COLOR       = 2,
-    DISTANCE_COLOR      = 3,
-    MINDISTANCE_COLOR   = 4,
-    CUSTOM_COLOR        = 5,    // This one is used only for the mean fiber. Should be moved.
-    CONSTANT_COLOR      = 6
+    DISTANCE_COLOR      = 1,
+    MINDISTANCE_COLOR   = 2,
+    CUSTOM_COLOR        = 3,    // This one is used only for the mean fiber. Should be moved.
+    CONSTANT_COLOR      = 4
 };
 
 
@@ -28,51 +28,52 @@ public:
     ~fiber(void);
 
     // Fibers loading methods
-    bool     load( const std::string &filename );
+    bool	load( const std::string &filename );
 
     void    updateFibersColors();
 
-    void     updateLinesShown();
+    void    updateLinesShown();
 
-    void     initializeBuffer() const;
+    void    initializeBuffer() const;
 
-    void     drawFiber() const;
+    void    drawFiber() const;
 
     void    drawFakeTubes() const;
     void    drawSortedLines() const;
-    void       drawCrossingFibers() const;
+    void    drawCrossingFibers() const;
 
     float   getFiberLength( const int fiberId ) const;
 
     void    resetColorArray();
 
-    void     initDraw();
+    void    initDraw();
 
-    void     findCrossingFibers();
+    void    findCrossingFibers();
 
     //getter setters
-    int      getLineCount() const;
+    int     getLineCount() const;
+
     const std::vector< float >&    getPointArray() const;
     const std::vector< float >&    getColorArray() const;
     const std::vector< float >&    getNormalArray() const;
 
-    const bool& IsUseFakeTubes() const;
-    const bool& IsuseTransparency() const;
-    const bool& IsUseIntersectedFibers() const;
+    const bool& isUseFakeTubes() const;
+    const bool& isUseTransparency() const;
+    const bool& isUseIntersectedFibers() const;
 
 
 private:
-    bool     loadDmri(const std::string &filename );
+    bool    loadDmri(const std::string &filename );
 
-    void     createColorArray( const bool colorsLoadedFromFile );
+    void    createColorArray( const bool colorsLoadedFromFile );
 
-    float    getPointValue( int  ptIndex );
+    float   getPointValue( int  ptIndex );
 
-    int      getPointsPerLine(const int lineId ) const;
-    int      getStartIndexForLine( const int lineId ) const;
+    int     getPointsPerLine(const int lineId ) const;
+    int     getStartIndexForLine( const int lineId ) const;
 
-    void     setShader();
-    void     releaseShader();
+    void    setShader();
+    void    releaseShader();
 
     int                         m_countLines;
     int                         m_countPoints;
@@ -100,3 +101,4 @@ private:
 
 };
 
+#endif /* FIBER_H_ */

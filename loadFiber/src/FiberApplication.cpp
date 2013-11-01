@@ -1,10 +1,3 @@
-/*
- * FiberApplication.cpp
- *
- *  Created on: Oct 9, 2013
- *      Author: belp2210
- */
-
 #include "FiberApplication.h"
 
 #include <Geometry/OrthogonalTransformation.h>
@@ -144,11 +137,11 @@ void FiberApplication::display(GLContextData& contextData) const
     glDisable(GL_LIGHTING);
 
     //draw fiber depending of the option choose by the user (It is not implemented for the moment)
-    if(mFibers.IsUseFakeTubes())
+    if(mFibers.isUseFakeTubes())
     {
         mFibers.drawFakeTubes();
     }
-    else if(mFibers.IsuseTransparency())
+    else if(mFibers.isUseTransparency())
     {
         glPushAttrib( GL_ALL_ATTRIB_BITS );
         glEnable( GL_BLEND );
@@ -157,7 +150,7 @@ void FiberApplication::display(GLContextData& contextData) const
         mFibers.drawSortedLines();
         glPopAttrib();
     }
-    else if(mFibers.IsUseIntersectedFibers())
+    else if(mFibers.isUseIntersectedFibers())
     {
         mFibers.drawCrossingFibers();
     }

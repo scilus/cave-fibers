@@ -24,11 +24,10 @@ endif()
 ##################################################
 
 # Setup Vrui
-set(VRUI_INCLUDE_DIR "" CACHE FILEPATH "Path to vrui include")
 
 PKG_SEARCH_MODULE(VRUI REQUIRED Vrui-1.0 Vrui)
 string(REPLACE "-framework;" "-framework " VRUI_LDFLAGS "${VRUI_LDFLAGS}")
-include_directories(${VRUI_INCLUDE_DIR})
+include_directories(${VRUI_INCLUDEDIR})
 set(LIBS ${LIBS} ${VRUI_LDFLAGS})
 #add_definitions(${VRUI_CFLAGS})
 

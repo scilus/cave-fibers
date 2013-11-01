@@ -3,6 +3,7 @@
 #include <float.h>
 #include <stdio.h>
 #include <algorithm>    // std::max
+#include <limits>       // std::numeric_limits
 
 fiber::fiber(void)
 :   m_colorArray(),
@@ -20,6 +21,7 @@ fiber::fiber(void)
     m_isInitialized( false ),
     m_useFakeTubes( false ),
     m_useTransparency( false ),
+    m_useIntersectedFibers(false),
     m_threshold( 0.0f ),
     m_fiberColorationMode( NORMAL_COLOR ),
     m_cachedThreshold( 0.0f ),
@@ -178,15 +180,15 @@ bool fiber::loadDmri( const std::string &filename )
     float back, front;
     std::stringstream ss;
 
-    float minX = FLT_MAX ;
-    float maxX = 0;
-    float minY = FLT_MAX ;
-    float maxY = 0;
-    float minZ = FLT_MAX ;
-    float maxZ = 0;
-    float moyX = 0;
-    float moyY = 0;
-    float moyZ = 0;
+    float minX = std::numeric_limits< float >::max();
+    float maxX = std::numeric_limits< float >::min();
+    float minY = std::numeric_limits< float >::max();
+    float maxY = std::numeric_limits< float >::min();
+    float minZ = std::numeric_limits< float >::max();
+    float maxZ = std::numeric_limits< float >::min();
+    float meanX = 0;
+    float meanY = 0;
+    float meanZ = 0;
 
     for( int i = 0; i < m_countLines; i++ )
     {
@@ -280,9 +282,9 @@ bool fiber::loadDmri( const std::string &filename )
         }
     }
 
-    moyX = (maxX+minX)/2.0;
-    moyY = (maxY+minY)/2.0;
-    moyZ = (maxZ+minZ)/2.0;
+    meanX = (maxX+minX)/2.0;
+    meanY = (maxY+minY)/2.0;
+    meanZ = (maxZ+minZ)/2.0;
 
     fclose( pFile );
     
@@ -323,9 +325,9 @@ bool fiber::loadDmri( const std::string &filename )
         m_reverse[i] = lineCounter;
     }
 
-    unsigned int     pos = 0;
-    unsigned int     index = 0;
-    float             moy = moyX;
+    unsigned int pos = 0;
+    unsigned int index = 0;
+    float        mean = meanX;
     std::vector< std::vector< float > >::iterator it;
 
     for( it = lines.begin(); it < lines.end(); it++ )
@@ -335,16 +337,16 @@ bool fiber::loadDmri( const std::string &filename )
 
         for( it2 = ( *it ).begin(); it2 < ( *it ).end(); it2++ )
         {
-            moy = moyX;
+            mean = meanX;
             if(index%3 == 1)
             {
-                moy = moyY;
+                mean = meanY;
             }
             else if(index%3 == 2)
             {
-                moy = moyZ;
+                mean = meanZ;
             }
-            m_pointArray[pos++] = *it2 - moy;;
+            m_pointArray[pos++] = *it2 - mean;
             index++;
         }
     }
@@ -662,15 +664,15 @@ const std::vector< float >& fiber::getNormalArray() const
     return m_normalArray;
 }
 
-const bool& fiber::IsUseFakeTubes() const
+const bool& fiber::isUseFakeTubes() const
 {
     return m_useFakeTubes;
 }
-const bool& fiber::IsuseTransparency() const
+const bool& fiber::isUseTransparency() const
 {
     return m_useTransparency;
 }
-const bool& fiber::IsUseIntersectedFibers() const
+const bool& fiber::isUseIntersectedFibers() const
 {
     return m_useIntersectedFibers;
 }
