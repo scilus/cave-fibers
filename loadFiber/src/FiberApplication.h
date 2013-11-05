@@ -1,10 +1,3 @@
-/*
- * FiberApplication.h
- *
- *  Created on: Oct 9, 2013
- *      Author: belp2210
- */
-
 #ifndef FIBERAPPLICATION_H_
 #define FIBERAPPLICATION_H_
 
@@ -19,7 +12,7 @@
 
 class FiberApplication:public Vrui::Application,public GLObject
 {
-    /* Embedded classes: */
+    //Embedded classes:
     private:
     struct DataItem:public GLObject::DataItem // Data structure storing OpenGL-dependent application data
     {
@@ -32,10 +25,10 @@ class FiberApplication:public Vrui::Application,public GLObject
         //Constructors and destructors:
         DataItem(void)
         {
-            /* Create a texture object to hold a texture: */
+            //Create a texture object to hold a texture:
             glGenTextures(1,&textureObjectId);
 
-            /* Create a display list: */
+            //Create a display list:
             displayListId=glGenLists(1);
 
             //create buffer
@@ -79,4 +72,4 @@ class FiberApplication:public Vrui::Application,public GLObject
 };
 
 
-#endif /* FIBERAPPLICATION_H_ */
+#endif //FIBERAPPLICATION_H_
