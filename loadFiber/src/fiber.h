@@ -34,10 +34,11 @@ public:
 
     void    updateLinesShown();
 
-    void    initializeBuffer() const;
+    void    initializeBuffer();
+
+    void    draw() const;
 
     void    drawFiber() const;
-
     void    drawFakeTubes() const;
     void    drawSortedLines() const;
     void    drawCrossingFibers() const;

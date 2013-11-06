@@ -74,12 +74,14 @@ void fiber::updateLinesShown()
     }
 }
 
-void fiber::initializeBuffer() const
+void fiber::initializeBuffer()
 {
     if( m_isInitialized)
     {
         return;
     }
+
+    m_isInitialized = true;
 
     glGenBuffers( 3, m_bufferObjects );
     glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[0] );
@@ -94,7 +96,10 @@ void fiber::initializeBuffer() const
 
 void fiber::initDraw()
 {
-    m_isInitialized = true;
+	if(!m_isInitialized)
+	{
+		return;
+	}
     setShader();
 
     if( m_cachedThreshold != m_threshold )
@@ -107,6 +112,36 @@ void fiber::initDraw()
     {
         findCrossingFibers();
     }
+}
+
+void fiber::draw() const
+{
+	if(!m_isInitialized)
+	{
+		return;
+	}
+	//draw fiber depending of the option choose by the user (It is not implemented for the moment)
+	if(isUseFakeTubes())
+	{
+		drawFakeTubes();
+	}
+	else if(isUseTransparency())
+	{
+		glPushAttrib( GL_ALL_ATTRIB_BITS );
+		glEnable( GL_BLEND );
+		glBlendFunc( GL_ONE, GL_ONE );
+		glDepthMask( GL_FALSE );
+		drawSortedLines();
+		glPopAttrib();
+	}
+	else if(isUseIntersectedFibers())
+	{
+		drawCrossingFibers();
+	}
+	else
+	{
+		drawFiber();
+	}
 }
 
 void fiber::drawFiber() const
