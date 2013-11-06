@@ -1,10 +1,16 @@
-#include "fiber.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-int main( int argc, const char* argv[] )
+#include "FiberApplication.h"
+
+int main(int argc,char* argv[])
 {
-    std::string fileName = "fibers.fib";
-    //load file fiber
-    fiber myFiber;
+    /* Create an application object: */
+    char** appDefaults=0; // This is an additional parameter no one ever uses
+    FiberApplication app(argc,argv,appDefaults);
 
-    myFiber.load(fileName);
+    /* Run the Vrui main loop: */
+    app.run();
+    /* Exit to OS: */
+    return 0;
 }
