@@ -5,7 +5,7 @@
 #include <algorithm>    // std::max
 #include <limits>       // std::numeric_limits
 
-fiber::fiber(void)
+Fibers::Fibers(void)
 :   m_colorArray(),
     m_countLines( 0 ),
     m_countPoints( 0 ),
@@ -25,13 +25,16 @@ fiber::fiber(void)
     m_threshold( 0.0f ),
     m_fiberColorationMode( NORMAL_COLOR ),
     m_cachedThreshold( 0.0f ),
-    m_showFS( true )
+    m_showFS( true ),
+    m_dims(3),
+    m_type(0)
 {
     m_bufferObjects = new GLuint[3];
+    m_dims = {10,10,10};
 }
 
 
-fiber::~fiber(void)
+Fibers::~Fibers(void)
 {
     m_linePointers.clear();
     m_reverse.clear();
@@ -42,7 +45,7 @@ fiber::~fiber(void)
     glDeleteBuffers( 3, m_bufferObjects );
 }
 
-bool fiber::load( const std::string &filename )
+bool Fibers::load( const std::string &filename )
 {
     bool res( false );
 
@@ -52,7 +55,7 @@ bool fiber::load( const std::string &filename )
     return res;
 }
 
-void fiber::updateFibersColors()
+void Fibers::updateFibersColors()
 {
     if( m_fiberColorationMode == NORMAL_COLOR )
     {
@@ -61,7 +64,7 @@ void fiber::updateFibersColors()
 }
 
 
-void fiber::updateLinesShown()
+void Fibers::updateLinesShown()
 {
     m_selected.assign( m_countLines, true );
 
@@ -74,7 +77,7 @@ void fiber::updateLinesShown()
     }
 }
 
-void fiber::initializeBuffer() const
+void Fibers::initializeBuffer() const
 {
     if( m_isInitialized)
     {
@@ -92,7 +95,7 @@ void fiber::initializeBuffer() const
     glBufferData( GL_ARRAY_BUFFER, sizeof( GLfloat ) * m_countPoints * 3, &m_normalArray[0], GL_STATIC_DRAW );
 }
 
-void fiber::initDraw()
+void Fibers::initDraw()
 {
     m_isInitialized = true;
     setShader();
@@ -109,7 +112,7 @@ void fiber::initDraw()
     }
 }
 
-void fiber::drawFiber() const
+void Fibers::drawFiber() const
 {
     glEnableClientState( GL_VERTEX_ARRAY );
     glEnableClientState( GL_COLOR_ARRAY );
@@ -148,7 +151,7 @@ void fiber::drawFiber() const
 }
 
 
-bool fiber::loadDmri( const std::string &filename )
+bool Fibers::loadDmri( const std::string &filename )
 {
     FILE *pFile;
     pFile = fopen( filename.c_str(), "r" );
@@ -212,7 +215,6 @@ bool fiber::loadDmri( const std::string &filename )
         {
             std::vector< float > curLine;
             curLine.resize( nbpoints * 3 );
-
             //back
             for( int j = back - 1; j >= 0; j-- )
             {
@@ -351,6 +353,11 @@ bool fiber::loadDmri( const std::string &filename )
         }
     }
 
+    m_dims[0] = maxX - minX;
+    m_dims[1] = maxY - minY;
+    m_dims[2] = maxZ - minZ;
+    m_origin = Point::origin;
+
     createColorArray( false );
     //m_type = FIBERS;
     m_fullPath = filename;
@@ -358,7 +365,7 @@ bool fiber::loadDmri( const std::string &filename )
     return true;
 }
 
-void fiber::createColorArray( const bool colorsLoadedFromFile )
+void Fibers::createColorArray( const bool colorsLoadedFromFile )
 {
     if( !colorsLoadedFromFile )
     {
@@ -455,7 +462,7 @@ void fiber::createColorArray( const bool colorsLoadedFromFile )
 }
 
 //method not tested
-void fiber::resetColorArray()
+void Fibers::resetColorArray()
 {
     float *pColorData( NULL );
     float *pColorData2( &m_colorArray[0] );
@@ -520,7 +527,7 @@ void fiber::resetColorArray()
 }
 
 //method not tested
-void fiber::drawCrossingFibers() const
+void Fibers::drawCrossingFibers() const
 {
     glEnableClientState( GL_VERTEX_ARRAY );
     glEnableClientState( GL_COLOR_ARRAY );
@@ -556,7 +563,7 @@ void fiber::drawCrossingFibers() const
     glDisableClientState( GL_NORMAL_ARRAY );
 }
 
-void fiber::findCrossingFibers()
+void Fibers::findCrossingFibers()
 {
     /*if (   m_cfDrawDirty
         || m_xDrawn != SceneManager::getInstance()->getSliceX()
@@ -646,53 +653,72 @@ void fiber::findCrossingFibers()
     }*/
 }
 
-int fiber::getLineCount() const
+int Fibers::getLineCount() const
 {
     return m_countLines;
 }
 
-const std::vector< float >& fiber::getPointArray() const
+const std::vector< float >& Fibers::getPointArray() const
 {
     return m_pointArray;
 }
-const std::vector< float >& fiber::getColorArray() const
+const std::vector< float >& Fibers::getColorArray() const
 {
     return m_colorArray;
 }
-const std::vector< float >& fiber::getNormalArray() const
+const std::vector< float >& Fibers::getNormalArray() const
 {
     return m_normalArray;
 }
 
-const bool& fiber::isUseFakeTubes() const
+const bool& Fibers::isUseFakeTubes() const
 {
     return m_useFakeTubes;
 }
-const bool& fiber::isUseTransparency() const
+const bool& Fibers::isUseTransparency() const
 {
     return m_useTransparency;
 }
-const bool& fiber::isUseIntersectedFibers() const
+const bool& Fibers::isUseIntersectedFibers() const
 {
     return m_useIntersectedFibers;
 }
 
-float fiber::getPointValue( int ptIndex )
+float Fibers::getPointValue( int ptIndex )
 {
     return m_pointArray[ptIndex];
 }
 
-int fiber::getPointsPerLine( const int lineId ) const
+int Fibers::getPointsPerLine( const int lineId ) const
 {
     return ( m_linePointers[lineId + 1] - m_linePointers[lineId] );
 }
 
-int fiber::getStartIndexForLine( const int lineId ) const
+int Fibers::getStartIndexForLine( const int lineId ) const
 {
     return m_linePointers[lineId];
 }
 
-void fiber::setShader()
+Point Fibers::getMaximun() const
+{
+	Point result = m_origin;
+	for (int i = 0; i < m_dims.size(); ++i)
+	{
+		result[i] += m_dims[i];
+	}
+	return result;
+}
+Point Fibers::getMinimum() const
+{
+	return m_origin;
+}
+
+void Fibers::setOrigin(Point aOrigin)
+{
+	m_origin = aOrigin;
+}
+
+void Fibers::setShader()
 {
     /*DatasetInfo *pDsInfo = (DatasetInfo*) this;
 
@@ -743,7 +769,7 @@ void fiber::setShader()
     }*/
 }
 
-void fiber::releaseShader()
+void Fibers::releaseShader()
 {
     /*if( m_useFakeTubes )
     {
@@ -760,7 +786,7 @@ void fiber::releaseShader()
 }
 
 //method not tested
-void fiber::drawFakeTubes() const
+void Fibers::drawFakeTubes() const
 {
     /*if( ! m_normalsPositive )
     {
@@ -819,7 +845,7 @@ void fiber::drawFakeTubes() const
 }
 
 //method not tested
-void fiber::drawSortedLines() const
+void Fibers::drawSortedLines() const
 {
     // Only sort those lines we see.
     unsigned int *pSnippletSort = NULL;

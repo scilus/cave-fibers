@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include <GL/glew.h>
+#include <Geometry/Point.h>
 
 ///////////////////////////////////////////////////////////////////////////
 // Enum representing the different type of fiber coloration mode.
@@ -19,16 +20,16 @@ enum FibersColorationMode
     CUSTOM_COLOR        = 3,    // This one is used only for the mean fiber. Should be moved.
     CONSTANT_COLOR      = 4
 };
+typedef Geometry::Point<float,3> Point;
 
-
-class fiber
+class Fibers
 {
 public:
-    fiber(void);
-    ~fiber(void);
+    Fibers(void);
+    ~Fibers(void);
 
     // Fibers loading methods
-    bool	load( const std::string &filename );
+    bool    load( const std::string &filename );
 
     void    updateFibersColors();
 
@@ -61,6 +62,11 @@ public:
     const bool& isUseTransparency() const;
     const bool& isUseIntersectedFibers() const;
 
+    Point 	getMaximun() const;
+    Point 	getMinimum() const;
+
+    void setOrigin(Point aOrigin);
+
 
 private:
     bool    loadDmri(const std::string &filename );
@@ -86,18 +92,22 @@ private:
     std::vector< bool >         m_filtered;
     std::vector< unsigned int > m_cfStartOfLine;
     std::vector< unsigned int > m_cfPointsPerLine;
-    int                        	m_type;
-    std::string                	m_fullPath;
-    bool                      	m_fibersInverted;
-    bool                      	m_isInitialized;
-    bool                     	m_useFakeTubes;
-    bool                       	m_useTransparency;
-    float                     	m_cachedThreshold;
-    float                   	m_threshold;
-    bool                    	m_useIntersectedFibers;
-    FibersColorationMode      	m_fiberColorationMode;
-    GLuint*                 	m_bufferObjects;
-    bool                    	m_showFS;       // Show front sector for meshs.
+    int                         m_type;
+    std::string                 m_fullPath;
+    bool                        m_fibersInverted;
+    bool                        m_isInitialized;
+    bool                        m_useFakeTubes;
+    bool                        m_useTransparency;
+    float                       m_cachedThreshold;
+    float                       m_threshold;
+    bool                        m_useIntersectedFibers;
+    FibersColorationMode        m_fiberColorationMode;
+    GLuint*                     m_bufferObjects;
+    bool                        m_showFS;       // Show front sector for meshs.
+
+    Point                       m_origin;
+
+    std::vector<float>						m_dims;
 
 };
 
