@@ -187,8 +187,6 @@ void SelectionBox::mouve(const Point& aTranslation)
 	m_boxMoved = true;
 	m_center = aTranslation;
 
-	printf("x: %f y: %f z: %f \n", m_center[0],m_center[1],m_center[2]);
-
 	update();
 }
 

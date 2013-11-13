@@ -147,10 +147,8 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
     :Vrui::Application(argc,argv,appDefaults),
      mainMenu(0)
 {
-	if(argc <=1)
-	{
-		//TODO create tool at lunch
-	}
+	//TODO create tool at lunch if possible
+
     //Create the user interface:
     mainMenu=createMainMenu();
 
@@ -159,7 +157,7 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
 
     std::string fileName = "fibers.fib";
     //load Fiber
-    //mFibers.load(fileName);
+    mFibers.load(fileName);
 
     //Set the navigation transformation:
     resetNavigationCallback(0);
