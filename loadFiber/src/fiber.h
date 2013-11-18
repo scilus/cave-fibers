@@ -106,7 +106,7 @@ private:
     GLuint*                     m_bufferObjects;
     bool                        m_showFS;       // Show front sector for meshs.
 
-    Point                       m_origin;
+    Point                       m_origin; //The point that the camera look.
 
     std::vector<float>						m_dims;
 
