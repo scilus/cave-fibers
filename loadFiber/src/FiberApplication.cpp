@@ -14,80 +14,83 @@
 
 void FiberApplication::drawArrow(const Vrui::Point& to,Vrui::Scalar radius) const
 {
-		Vrui::Scalar tipHeight=radius*Vrui::Scalar(6.0);
-		Vrui::Scalar shaftLength=Geometry::dist(Vrui::Point::origin,to)-tipHeight;
+        Vrui::Scalar tipHeight=radius*Vrui::Scalar(6.0);
+        Vrui::Scalar shaftLength=Geometry::dist(Vrui::Point::origin,to)-tipHeight;
 
-		glPushMatrix();
-		glTranslate(Vrui::Point::origin-Vrui::Point::origin);
-		glRotate(Vrui::Rotation::rotateFromTo(Vrui::Vector(0,0,1),to-Vrui::Point::origin));
-		glTranslate(Vrui::Vector(0,0,Math::div2(shaftLength)));
-		glDrawCylinder(radius,shaftLength,24);
-		glTranslate(Vrui::Vector(0,0,Math::div2(shaftLength)+tipHeight*Vrui::Scalar(0.25)));
-		glDrawCone(radius*Vrui::Scalar(2),tipHeight,24);
-		glPopMatrix();
+        glPushMatrix();
+        glTranslate(Vrui::Point::origin-Vrui::Point::origin);
+        glRotate(Vrui::Rotation::rotateFromTo(Vrui::Vector(0,0,1),to-Vrui::Point::origin));
+        glTranslate(Vrui::Vector(0,0,Math::div2(shaftLength)));
+        glDrawCylinder(radius,shaftLength,24);
+        glTranslate(Vrui::Vector(0,0,Math::div2(shaftLength)+tipHeight*Vrui::Scalar(0.25)));
+        glDrawCone(radius*Vrui::Scalar(2),tipHeight,24);
+        glPopMatrix();
 }
 
 FiberApplication::ObjectDragger::ObjectDragger(Vrui::DraggingTool* sTool,FiberApplication* sApplication)
-	:Vrui::DraggingToolAdapter(sTool),
-	 application(sApplication),
-	 dragging(false),
-	 m_selectedBox(NULL)
+    :Vrui::DraggingToolAdapter(sTool),
+     application(sApplication),
+     dragging(false),
+     m_selectedBox(NULL)
 {
 }
 
 void FiberApplication::ObjectDragger::dragStartCallback(Vrui::DraggingTool::DragStartCallbackData* cbData)
 {
-	if(application->m_SelectionBox.size()>0)
-	{
-		bool isHit = false;
-		//Find the picked object:
-		if(cbData->rayBased)
-		{
-			float minLambda=Math::Constants<float>::max;
-			std::vector<SelectionBox*> selectionBox = application->getSelectionBoxVector();
-			for(int i=0; i<selectionBox.size();i++)
-			{
-				Geometry::Box<float,3>::HitResult hr = selectionBox[i]->pickBox(cbData->ray);
-				if(hr.isValid()&&hr.getParameter()<minLambda)
-				{
-					isHit = true;
-					m_selectedBox=selectionBox[i];
-					minLambda=hr.getParameter();
-				}
-			}
-		}
+    if(application->m_SelectionBox.size()>0)
+    {
+        bool isHit = false;
+        //Find the picked object:
+        if(cbData->rayBased)
+        {
+            float minLambda=Math::Constants<float>::max;
+            std::vector<SelectionBox*> selectionBox = application->getSelectionBoxVector();
 
-		if(isHit)
-		{
-			dragging =true;
-			//Calculate the initial transformation from the dragger to the dragged object:
-			dragTransform=ONTransform(cbData->startTransformation.getTranslation(),cbData->startTransformation.getRotation());
-			dragTransform.doInvert();
-			dragTransform*= ONTransform(m_selectedBox->getCenter() - Geometry::Point<float,3>::origin,SelectionBox::Rotation::identity);
-			m_selectedBox->toggleIsBoxSelected();
-		}
-	}
+            for(int i=0; i<selectionBox.size();i++)
+            {
+                Geometry::Box<float,3>::HitResult hr = selectionBox[i]->pickBox(cbData->ray);
+
+                if(hr.isValid() && hr.getParameter()<minLambda)
+                {
+                    isHit = true;
+                    m_selectedBox=selectionBox[i];
+                    minLambda=hr.getParameter();
+                }
+            }
+        }
+
+        if(isHit)
+        {
+            dragging =true;
+            //Calculate the initial transformation from the dragger to the dragged object:
+            dragTransform=ONTransform(cbData->startTransformation.getTranslation(),cbData->startTransformation.getRotation());
+            dragTransform.doInvert();
+            dragTransform*= ONTransform(m_selectedBox->getCenter() - Geometry::Point<float,3>::origin,SelectionBox::Rotation::identity);
+            m_selectedBox->toggleIsBoxSelected();
+        }
+    }
 }
 
 void FiberApplication::ObjectDragger::dragCallback(Vrui::DraggingTool::DragCallbackData* cbData)
 {
-	if(dragging)
-	{
-		// Apply the dragging transformation to the dragged atom:
-		ONTransform transform=ONTransform(cbData->currentTransformation.getTranslation(),cbData->currentTransformation.getRotation());
-		transform*=dragTransform;
+    if(dragging)
+    {
+        // Apply the dragging transformation to the dragged atom:
+        ONTransform transform=ONTransform(cbData->currentTransformation.getTranslation(),cbData->currentTransformation.getRotation());
+        transform*=dragTransform;
 
-		m_selectedBox->mouve(transform.getOrigin());
-	}
+        m_selectedBox->move(transform.getOrigin());
+    }
 }
 
 void FiberApplication::ObjectDragger::dragEndCallback(Vrui::DraggingTool::DragEndCallbackData* cbData)
 {
-	if(dragging)
-	{
-		dragging=false;
-		m_selectedBox->toggleIsBoxSelected();
-	}
+    if(dragging)
+    {
+        dragging=false;
+        m_selectedBox->toggleIsBoxSelected();
+        m_selectedBox->unPickBox();
+    }
 }
 
 GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
@@ -117,9 +120,9 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
 void FiberApplication::resetNavigationCallback(Misc::CallbackData* cbData)
 {
     //Reset the Vrui navigation transformation:
-    Vrui::Point center = Geometry::mid(mFibers.getMinimum(), mFibers.getMinimum());
-	Vrui::Scalar radius = Geometry::dist(mFibers.getMinimum(), mFibers.getMaximun());
-	Vrui::setNavigationTransformation(center, radius);
+    Vrui::Point center = mFibers.getCenter();
+    Vrui::Scalar radius = Geometry::dist(mFibers.getCenter(),mFibers.getMaximun());
+    Vrui::setNavigationTransformation(center, radius);
 
     /*********************************************************************
     Now the coordinate system's origin is in the middle of the
@@ -130,24 +133,23 @@ void FiberApplication::resetNavigationCallback(Misc::CallbackData* cbData)
 
 void FiberApplication::OnAddSelectionBoxCallBack(Misc::CallbackData* cbData)
 {
-	Point l_center( 0,0,0);
-	float l_sizeV = 10;
+    Point center( 0,0,0);
 
-	Point l_size( l_sizeV,l_sizeV,l_sizeV);
+    Point size( 10.0,10.0,10.0);
 
-	m_SelectionBox.push_back(new SelectionBox(l_center,l_size));
+    m_SelectionBox.push_back(new SelectionBox(center,size));
 }
 
 std::vector<SelectionBox*>& FiberApplication::getSelectionBoxVector()
 {
-	return m_SelectionBox;
+    return m_SelectionBox;
 }
 
 FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
     :Vrui::Application(argc,argv,appDefaults),
      mainMenu(0)
 {
-	//TODO create tool at lunch if possible
+    //TODO create tool at launch if possible
 
     //Create the user interface:
     mainMenu=createMainMenu();
@@ -165,7 +167,7 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
     mFibers.updateLinesShown();
 
     //Tell Vrui to run in a continuous frame sequence:
-	Vrui::updateContinuously();
+    Vrui::updateContinuously();
 }
 
 FiberApplication::~FiberApplication(void)
@@ -174,50 +176,50 @@ FiberApplication::~FiberApplication(void)
     delete mainMenu;
 
     //Delete all object draggers:
-	for(std::vector<ObjectDragger*>::iterator adIt=m_objectDragger.begin();adIt!=m_objectDragger.end();++adIt)
-	{
-		delete *adIt;
-	}
+    for(std::vector<ObjectDragger*>::iterator adIt=m_objectDragger.begin();adIt!=m_objectDragger.end();++adIt)
+    {
+        delete *adIt;
+    }
 
-	//Delete all selectionBox
-	for(std::vector<SelectionBox*>::iterator adIt=m_SelectionBox.begin();adIt!=m_SelectionBox.end();++adIt)
-	{
-		delete *adIt;
-	}
+    //Delete all selectionBox
+    for(std::vector<SelectionBox*>::iterator adIt=m_SelectionBox.begin();adIt!=m_SelectionBox.end();++adIt)
+    {
+        delete *adIt;
+    }
 
 }
 
 void FiberApplication::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* cbData)
 {
-	//Check if the new tool is a dragging tool:
-	Vrui::DraggingTool* tool=dynamic_cast<Vrui::DraggingTool*>(cbData->tool);
-	if(tool!=0)
-	{
-		//Create an atom dragger object and associate it with the new tool:
-		ObjectDragger* newDragger=new ObjectDragger(tool,this);
+    //Check if the new tool is a dragging tool:
+    Vrui::DraggingTool* tool=dynamic_cast<Vrui::DraggingTool*>(cbData->tool);
+    if(tool!=0)
+    {
+        //Create an atom dragger object and associate it with the new tool:
+        ObjectDragger* newDragger=new ObjectDragger(tool,this);
 
-		//Add new dragger to list:
-		m_objectDragger.push_back(newDragger);
-	}
+        //Add new dragger to list:
+        m_objectDragger.push_back(newDragger);
+    }
 }
 
 void FiberApplication::toolDestructionCallback(Vrui::ToolManager::ToolDestructionCallbackData* cbData)
 {
-	//Check if the to-be-destroyed tool is a dragging tool:
-	Vrui::DraggingTool* tool=dynamic_cast<Vrui::DraggingTool*>(cbData->tool);
-	if(tool!=0)
-	{
-		//Find the atom dragger associated with the tool in the list:
-		std::vector<ObjectDragger*>::iterator adIt;
-		for(adIt=m_objectDragger.begin();adIt!=m_objectDragger.end()&&(*adIt)->getTool()!=tool;++adIt)
-			;
-		if(adIt!=m_objectDragger.end())
-		{
-			//Remove the atom dragger:
-			delete *adIt;
-			m_objectDragger.erase(adIt);
-		}
-	}
+    //Check if the to-be-destroyed tool is a dragging tool:
+    Vrui::DraggingTool* tool=dynamic_cast<Vrui::DraggingTool*>(cbData->tool);
+    if(tool!=0)
+    {
+        //Find the atom dragger associated with the tool in the list:
+        std::vector<ObjectDragger*>::iterator adIt;
+        for(adIt=m_objectDragger.begin();adIt!=m_objectDragger.end()&&(*adIt)->getTool()!=tool;++adIt)
+            ;
+        if(adIt!=m_objectDragger.end())
+        {
+            //Remove the atom dragger:
+            delete *adIt;
+            m_objectDragger.erase(adIt);
+        }
+    }
 }
 
 void FiberApplication::frame(void)
@@ -229,14 +231,14 @@ void FiberApplication::frame(void)
     background threads, change the navigation transformation, etc.).
     *********************************************************************/
 
-	bool aBoxActive = false;
-	for(std::vector<SelectionBox*>::iterator it = m_SelectionBox.begin(); it != m_SelectionBox.end(); it++)
-	{
-		if((*it)->isActive())
-		{
-			//TODO updatefiber
-		}
-	}
+    bool aBoxActive = false;
+    for(std::vector<SelectionBox*>::iterator it = m_SelectionBox.begin(); it != m_SelectionBox.end(); it++)
+    {
+        if((*it)->isActive())
+        {
+            //TODO updatefiber
+        }
+    }
     //Get the time since the last frame:
     double frameTime=Vrui::getCurrentFrameTime();
 
@@ -299,22 +301,22 @@ void FiberApplication::display(GLContextData& contextData) const
 
     for(int i=0; i<m_SelectionBox.size();i++)
     {
-    	m_SelectionBox[i]->draw();
+        m_SelectionBox[i]->draw();
     }
 
     //Draw the forward direction:
-	glColor3f(1.0f,0.0f,0.0f);
-	drawArrow(Vrui::Point(6.0,0.0,0.0),arrowRadius);
+    glColor3f(1.0f,0.0f,0.0f);
+    drawArrow(Vrui::Point(6.0,0.0,0.0),arrowRadius);
 
-	//Draw the up direction:
-	glColor3f(0.0f,1.0f,0.0f);
-	drawArrow(Vrui::Point(0.0,6.0,0.0),arrowRadius);
+    //Draw the up direction:
+    glColor3f(0.0f,1.0f,0.0f);
+    drawArrow(Vrui::Point(0.0,6.0,0.0),arrowRadius);
 
-	//Draw the up direction:
-	glColor3f(0.0f,0.0f,1.0f);
-	drawArrow(Vrui::Point(0.0,0.0,6.0),arrowRadius);
+    //Draw the up direction:
+    glColor3f(0.0f,0.0f,1.0f);
+    drawArrow(Vrui::Point(0.0,0.0,6.0),arrowRadius);
 
-	glPopAttrib();
+    glPopAttrib();
 
     //Go back to navigation coordinates:
     glPopMatrix();

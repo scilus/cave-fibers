@@ -28,10 +28,11 @@ public:
 	void toggleIsBoxSelected();
 	bool isActive() const;
 
-	void mouve(const Point& aTranslation);
+	void move(const Point& aTranslation);
 	Point getCenter() const;
 
-	Geometry::Box<float,3>::HitResult pickBox(Geometry::Ray<float,3> Ray);
+	Geometry::Box<float,3>::HitResult 	pickBox(Geometry::Ray<float,3> Ray);
+	void 								unPickBox();
 
 
 
@@ -57,7 +58,7 @@ private:
 
 	Geometry::Box<float,3> m_box;
 
-	// Those variables represent the min/max value in pixel of the object.
+	// Those variables represent the min/max value in 3D Space of the object.
 	float m_minX;
 	float m_minY;
 	float m_minZ;

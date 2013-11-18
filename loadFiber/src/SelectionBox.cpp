@@ -56,12 +56,12 @@ void SelectionBox::draw() const
 		return;
 	}
 
-	GLfloat l_color[] = { 0.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat color[] = { 0.0f, 1.0f, 1.0f, 1.0f };
 
 	glDepthMask( GL_FALSE );
 	glPushAttrib(GL_LIGHTING_BIT);
 	glDisable(GL_LIGHTING);
-	glColor4f( l_color[0], l_color[1], l_color[2], l_color[3] );
+	glColor4f( color[0], color[1], color[2], color[3] );
 	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 	glBegin( GL_QUADS );
 		glVertex3f( m_minX, m_minY, m_maxZ );
@@ -182,7 +182,12 @@ Geometry::Box<float,3>::HitResult SelectionBox::pickBox(Geometry::Ray<float,3> R
 	return hr;
 }
 
-void SelectionBox::mouve(const Point& aTranslation)
+void SelectionBox::unPickBox()
+{
+	m_boxMoved = false;
+}
+
+void SelectionBox::move(const Point& aTranslation)
 {
 	m_boxMoved = true;
 	m_center = aTranslation;

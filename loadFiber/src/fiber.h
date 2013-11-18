@@ -62,8 +62,9 @@ public:
     const bool& isUseTransparency() const;
     const bool& isUseIntersectedFibers() const;
 
+    //this function are use for set the camera position relative to the biggest dataset loaded
     Point 	getMaximun() const;
-    Point 	getMinimum() const;
+    Point 	getCenter() const;
 
     void setOrigin(Point aOrigin);
 

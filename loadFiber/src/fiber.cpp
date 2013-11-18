@@ -26,11 +26,10 @@ Fibers::Fibers(void)
     m_fiberColorationMode( NORMAL_COLOR ),
     m_cachedThreshold( 0.0f ),
     m_showFS( true ),
-    m_dims(3),
+    m_dims(3,0),
     m_type(0)
 {
     m_bufferObjects = new GLuint[3];
-    m_dims = {10,10,10};
 }
 
 
@@ -339,23 +338,23 @@ bool Fibers::loadDmri( const std::string &filename )
 
         for( it2 = ( *it ).begin(); it2 < ( *it ).end(); it2++ )
         {
-            mean = meanX;
+            mean = meanX + m_origin[0];
             if(index%3 == 1)
             {
-                mean = meanY;
+                mean = meanY + m_origin[1];
             }
             else if(index%3 == 2)
             {
-                mean = meanZ;
+                mean = meanZ + m_origin[2];
             }
             m_pointArray[pos++] = *it2 - mean;
             index++;
         }
     }
 
-    m_dims[0] = maxX - minX;
-    m_dims[1] = maxY - minY;
-    m_dims[2] = maxZ - minZ;
+    m_dims[0] = meanX;
+    m_dims[1] = meanY;
+    m_dims[2] = meanZ;
     m_origin = Point::origin;
 
     createColorArray( false );
@@ -704,11 +703,11 @@ Point Fibers::getMaximun() const
 	Point result = m_origin;
 	for (int i = 0; i < m_dims.size(); ++i)
 	{
-		result[i] += m_dims[i];
+		result[i] += std::max(m_dims[i],10.0f);
 	}
 	return result;
 }
-Point Fibers::getMinimum() const
+Point Fibers::getCenter() const
 {
 	return m_origin;
 }
