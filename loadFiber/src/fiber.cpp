@@ -26,7 +26,8 @@ Fibers::Fibers(void)
     m_fiberColorationMode( NORMAL_COLOR ),
     m_cachedThreshold( 0.0f ),
     m_showFS( true ),
-    m_dims(3,0),
+    m_max(3,0),
+    m_min(3,0),
     m_type(0)
 {
     m_bufferObjects = new GLuint[3];
@@ -338,24 +339,27 @@ bool Fibers::loadDmri( const std::string &filename )
 
         for( it2 = ( *it ).begin(); it2 < ( *it ).end(); it2++ )
         {
-            mean = meanX + m_origin[0];
+            mean = meanX;
             if(index%3 == 1)
             {
-                mean = meanY + m_origin[1];
+                mean = meanY;
             }
             else if(index%3 == 2)
             {
-                mean = meanZ + m_origin[2];
+                mean = meanZ;
             }
             m_pointArray[pos++] = *it2 - mean;
             index++;
         }
     }
 
-    m_dims[0] = meanX;
-    m_dims[1] = meanY;
-    m_dims[2] = meanZ;
-    m_origin = Point::origin;
+    m_max[0] = maxX - meanX;
+    m_max[1] = maxY - meanY;
+    m_max[2] = maxZ - meanZ;
+
+    m_min[0] = minX - meanX;
+	m_min[1] = minY - meanY;
+	m_min[2] = minZ - meanZ;
 
     createColorArray( false );
     //m_type = FIBERS;
@@ -698,23 +702,13 @@ int Fibers::getStartIndexForLine( const int lineId ) const
     return m_linePointers[lineId];
 }
 
-Point Fibers::getMaximun() const
+Point Fibers::getBBMax() const
 {
-	Point result = m_origin;
-	for (int i = 0; i < m_dims.size(); ++i)
-	{
-		result[i] += std::max(m_dims[i],10.0f);
-	}
-	return result;
+	return m_max;
 }
-Point Fibers::getCenter() const
+Point Fibers::getBBMin() const
 {
-	return m_origin;
-}
-
-void Fibers::setOrigin(Point aOrigin)
-{
-	m_origin = aOrigin;
+	return m_min;
 }
 
 void Fibers::setShader()

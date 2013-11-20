@@ -63,10 +63,8 @@ public:
     const bool& isUseIntersectedFibers() const;
 
     //this function are use for set the camera position relative to the biggest dataset loaded
-    Point 	getMaximun() const;
-    Point 	getCenter() const;
-
-    void setOrigin(Point aOrigin);
+    Point 	getBBMax() const;
+    Point 	getBBMin() const;
 
 
 private:
@@ -106,9 +104,8 @@ private:
     GLuint*                     m_bufferObjects;
     bool                        m_showFS;       // Show front sector for meshs.
 
-    Point                       m_origin; //The point that the camera look.
-
-    std::vector<float>						m_dims;
+    Point						m_max;
+    Point						m_min;
 
 };
 

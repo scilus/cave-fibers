@@ -175,9 +175,11 @@ bool SelectionBox::isActive() const
 float SelectionBox::pickBox(SelectionBox::Point p)
 {
 	float dist = Math::Constants<float>::max;
+	//compute the size of selectionBox
 	float limitsMax = Geometry::sqrDist(m_center,SelectionBox::Point(m_maxX,m_maxY,m_maxZ));
 	if(!m_isSelected && m_isActive)
 	{
+		//check if the Point p are in the box
 		float dist2 = Geometry::sqrDist(p,m_center);
 		if(dist2 < limitsMax)
 		{

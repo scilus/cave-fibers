@@ -133,8 +133,8 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
 void FiberApplication::resetNavigationCallback(Misc::CallbackData* cbData)
 {
     //Reset the Vrui navigation transformation:
-    Vrui::Point center = mFibers.getCenter();
-    Vrui::Scalar radius = Geometry::dist(mFibers.getCenter(),mFibers.getMaximun());
+    Vrui::Point center = Point::origin;
+    Vrui::Scalar radius = Geometry::dist(Point::origin,mFibers.getBBMax());
     Vrui::setNavigationTransformation(center, radius);
 
     /*********************************************************************
