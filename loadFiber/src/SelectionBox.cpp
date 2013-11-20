@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <Geometry/Vector.h>
 #include <Geometry/Rotation.h>
+#include <algorithm>    // std::max
 
 #define X 0
 #define Y 1
@@ -174,9 +175,14 @@ bool SelectionBox::isActive() const
 float SelectionBox::pickBox(SelectionBox::Point p)
 {
 	float dist = Math::Constants<float>::max;
+	float limitsMax = Geometry::sqrDist(m_center,SelectionBox::Point(m_maxX,m_maxY,m_maxZ));
 	if(!m_isSelected && m_isActive)
 	{
-		dist = Geometry::sqrDist(p,m_center);
+		float dist2 = Geometry::sqrDist(p,m_center);
+		if(dist2 < limitsMax)
+		{
+			dist = dist2;
+		}
 	}
 	return dist;
 }

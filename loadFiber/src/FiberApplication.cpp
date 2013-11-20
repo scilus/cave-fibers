@@ -45,7 +45,6 @@ void FiberApplication::ObjectDragger::dragStartCallback(Vrui::DraggingTool::Drag
         //Find the picked object:
         if(cbData->rayBased)
         {
-
             for(int i=0; i<selectionBox.size();i++)
             {
                 Geometry::Box<float,3>::HitResult hr = selectionBox[i]->pickBox(cbData->ray);
