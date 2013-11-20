@@ -171,6 +171,16 @@ bool SelectionBox::isActive() const
 	return m_isActive;
 }
 
+float SelectionBox::pickBox(SelectionBox::Point p)
+{
+	float dist = Math::Constants<float>::max;
+	if(!m_isSelected && m_isActive)
+	{
+		dist = Geometry::sqrDist(p,m_center);
+	}
+	return dist;
+}
+
 Geometry::Box<float,3>::HitResult SelectionBox::pickBox(Geometry::Ray<float,3> Ray)
 {
 	Geometry::Box<float,3>::HitResult hr;

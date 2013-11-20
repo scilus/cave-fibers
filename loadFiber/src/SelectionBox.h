@@ -31,6 +31,7 @@ public:
 	void move(const Point& aTranslation);
 	Point getCenter() const;
 
+	float 								pickBox(Point p);
 	Geometry::Box<float,3>::HitResult 	pickBox(Geometry::Ray<float,3> Ray);
 	void 								unPickBox();
 

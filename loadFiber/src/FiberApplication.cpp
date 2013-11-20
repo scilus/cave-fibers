@@ -40,11 +40,11 @@ void FiberApplication::ObjectDragger::dragStartCallback(Vrui::DraggingTool::Drag
     if(application->m_SelectionBox.size()>0)
     {
         bool isHit = false;
+        std::vector<SelectionBox*> selectionBox = application->getSelectionBoxVector();
+        float minLambda=Math::Constants<float>::max;
         //Find the picked object:
         if(cbData->rayBased)
         {
-            float minLambda=Math::Constants<float>::max;
-            std::vector<SelectionBox*> selectionBox = application->getSelectionBoxVector();
 
             for(int i=0; i<selectionBox.size();i++)
             {
@@ -57,6 +57,20 @@ void FiberApplication::ObjectDragger::dragStartCallback(Vrui::DraggingTool::Drag
                     minLambda=hr.getParameter();
                 }
             }
+        }
+        else
+        {
+        	for(int i=0; i<selectionBox.size();i++)
+			{
+				float dist = selectionBox[i]->pickBox(cbData->startTransformation.getOrigin());
+
+				if(dist<minLambda)
+				{
+					isHit = true;
+					m_selectedBox=selectionBox[i];
+					minLambda=dist;
+				}
+			}
         }
 
         if(isHit)
