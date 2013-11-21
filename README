@@ -50,3 +50,6 @@ Now the "build" directory should contain an executable named Cave_Fibers.
 Inside "build" the program can be started with the following command:
 
 > ./Cave_Fibers
+
+For activate the Dragger. press a key like "1" or "middle-click" and select "6-DOF dragger" tool under Dragger.
+Hold this key for drag the selection Box.

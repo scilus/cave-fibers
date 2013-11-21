@@ -46,11 +46,13 @@ set(LIBS ${LIBS} ${GLEW_LIBRARY})
 SET(CAVEFIBER_SRC
     src/main.cpp
     src/fiber.cpp
-    src/FiberApplication.cpp)
+    src/FiberApplication.cpp
+    src/SelectionBox.cpp)
     
 SET(CAVEFIBER_HDR
     src/fiber.h
-    src/FiberApplication.h)
+    src/FiberApplication.h
+    src/SelectionBox.h)
 
 # Platform Specific Config 
 ##################################################
