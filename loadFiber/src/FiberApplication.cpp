@@ -133,8 +133,8 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
 void FiberApplication::resetNavigationCallback(Misc::CallbackData* cbData)
 {
     //Reset the Vrui navigation transformation:
-    Vrui::Point center = Point::origin;
-    Vrui::Scalar radius = Geometry::dist(Point::origin,mFibers.getBBMax());
+    Vrui::Point center = Fibers::Point::origin;
+    Vrui::Scalar radius = Geometry::dist(Fibers::Point::origin,mFibers.getBBMax());
     Vrui::setNavigationTransformation(center, radius);
 
     /*********************************************************************
@@ -146,9 +146,9 @@ void FiberApplication::resetNavigationCallback(Misc::CallbackData* cbData)
 
 void FiberApplication::OnAddSelectionBoxCallBack(Misc::CallbackData* cbData)
 {
-    Point center( 0,0,0);
+	Fibers::Point center( 0,0,0);
 
-    Point size( 10.0,10.0,10.0);
+	Fibers::Point size( 10.0,10.0,10.0);
 
     m_SelectionBox.push_back(new SelectionBox(center,size));
 }
@@ -246,7 +246,7 @@ void FiberApplication::updateSelectedFiber(Fibers* aFiber)
 	//fiind all fibers that pass in selection boxes
 	for(std::vector<SelectionBox*>::iterator it = m_SelectionBox.begin(); it != m_SelectionBox.end(); it++)
 	{
-		if((*it)->isActive())
+		if((*it)->isActive() && mFibers.containsSelectionBox((*it)->getBoundingBox()))
 		{
 			subSelectedFibers = (*it)->getSelectedFiber(aFiber);
 

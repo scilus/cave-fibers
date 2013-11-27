@@ -8,6 +8,7 @@
 
 #include <GL/glew.h>
 #include <Geometry/Point.h>
+#include <Geometry/Box.h>
 
 ///////////////////////////////////////////////////////////////////////////
 // Enum representing the different type of fiber coloration mode.
@@ -20,11 +21,12 @@ enum FibersColorationMode
     CUSTOM_COLOR        = 3,    // This one is used only for the mean fiber. Should be moved.
     CONSTANT_COLOR      = 4
 };
-typedef Geometry::Point<float,3> Point;
 
 class Fibers
 {
 public:
+	typedef Geometry::Point<float,3> Point;
+
     Fibers(void);
     ~Fibers(void);
 
@@ -72,6 +74,8 @@ public:
     Point 	getBBMax() const;
     Point 	getBBMin() const;
 
+    bool containsSelectionBox(Geometry::Box<float,3>  aBox);
+
     void setSelectedFiber(const std::vector<bool>& aSelectedFiber);
 
 
@@ -92,6 +96,7 @@ private:
     int                         m_countPoints;
     std::vector< int >          m_linePointers;
     std::vector< float >        m_pointArray;
+    std::vector< Point >        m_pointArray2;
     std::vector< float >        m_colorArray;
     std::vector< float >        m_normalArray;
     std::vector< int >          m_reverse;
@@ -111,6 +116,8 @@ private:
     FibersColorationMode        m_fiberColorationMode;
     GLuint*                     m_bufferObjects;
     bool                        m_showFS;       // Show front sector for meshs.
+
+    Geometry::Box<float,3> 		m_box;
 
     Point						m_max;
     Point						m_min;

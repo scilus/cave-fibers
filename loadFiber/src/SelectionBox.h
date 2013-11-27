@@ -15,12 +15,11 @@
 
 class SelectionBox {
 public:
-	typedef Geometry::Point<float,3> Point;
 	typedef Geometry::Vector<float,3> Vector; // Compatible vector type
 	typedef Geometry::OrthonormalTransformation<float,3> ONTransform; // Type for object positions/orientations
 	typedef Geometry::Rotation<float,3> Rotation; // Rotation type
 
-	SelectionBox(Point aCenter, Point aSize);
+	SelectionBox(Fibers::Point aCenter, Fibers::Point aSize);
 	SelectionBox();
 	virtual ~SelectionBox();
 
@@ -31,10 +30,11 @@ public:
 	void toggleIsBoxSelected();
 	bool isActive() const;
 
-	void move(const Point& aTranslation);
-	Point getCenter() const;
+	void move(const Fibers::Point& aTranslation);
+	Fibers::Point getCenter() const;
+	Geometry::Box<float,3> getBoundingBox();
 
-	float 								pickBox(Point p);
+	float 								pickBox(Fibers::Point p);
 	Geometry::Box<float,3>::HitResult 	pickBox(Geometry::Ray<float,3> Ray);
 	void 								unPickBox();
 
@@ -51,15 +51,16 @@ private:
 	void    draw5() const;
 	void    draw6() const;
 
-	bool 	insideBox(Point aPoint);
+	bool 	insideBox(Fibers::Point aPoint);
 
 
 	bool 	m_isSelected;
-	Point  	m_size;
-	Point  	m_center;
+	Fibers::Point  	m_size;
+	Fibers::Point  	m_center;
 
 
 	bool    m_boxMoved;
+	bool 	m_needUpdate;
 	bool    m_boxResized;
 	bool    m_isActive;
 

@@ -10,7 +10,7 @@
 #define Y 1
 #define Z 2
 
-SelectionBox::SelectionBox(Point aCenter, Point aSize):
+SelectionBox::SelectionBox(Fibers::Point aCenter, Fibers::Point aSize):
 m_isSelected(false),
 m_size(aSize),
 m_center(aCenter),
@@ -23,11 +23,12 @@ m_isActive(true)
 
 SelectionBox::SelectionBox():
 m_isSelected(false),
-m_size(Point(0.0,0.0,0.0)),
-m_center(Point(0.0,0.0,0.0)),
+m_size(Fibers::Point(0.0,0.0,0.0)),
+m_center(Fibers::Point(0.0,0.0,0.0)),
 m_boxMoved(false),
 m_boxResized(false),
-m_isActive(true)
+m_isActive(true),
+m_needUpdate(true)
 {
 	update();
 }
@@ -47,7 +48,7 @@ void SelectionBox::update()
 	m_minZ = m_center[Z] - ( m_size[Z] * 0.5f);
 	m_maxZ = m_center[Z] + ( m_size[Z] * 0.5f);
 
-	m_box = Geometry::Box<float,3>(Point(m_minX,m_minY,m_minZ),Point(m_maxX,m_maxY,m_maxZ));
+	m_box = Geometry::Box<float,3>(Fibers::Point(m_minX,m_minY,m_minZ),Fibers::Point(m_maxX,m_maxY,m_maxZ));
 }
 
 void SelectionBox::draw() const
@@ -172,11 +173,11 @@ bool SelectionBox::isActive() const
 	return m_isActive;
 }
 
-float SelectionBox::pickBox(SelectionBox::Point p)
+float SelectionBox::pickBox(Fibers::Point p)
 {
 	float dist = Math::Constants<float>::max;
 	//compute the size of selectionBox
-	float limitsMax = Geometry::sqrDist(m_center,SelectionBox::Point(m_maxX,m_maxY,m_maxZ));
+	float limitsMax = Geometry::sqrDist(m_center,Fibers::Point(m_maxX,m_maxY,m_maxZ));
 	if(!m_isSelected && m_isActive)
 	{
 		//check if the Point p are in the box
@@ -205,17 +206,23 @@ void SelectionBox::unPickBox()
 	m_boxMoved = false;
 }
 
-void SelectionBox::move(const Point& aTranslation)
+void SelectionBox::move(const Fibers::Point& aTranslation)
 {
 	m_boxMoved = true;
+	m_needUpdate = true;
 	m_center = aTranslation;
 
 	update();
 }
 
-SelectionBox::Point SelectionBox::getCenter() const
+Fibers::Point SelectionBox::getCenter() const
 {
 	return m_center;
+}
+
+Geometry::Box<float,3> SelectionBox::getBoundingBox()
+{
+	return m_box;
 }
 
 std::vector<bool> SelectionBox::getSelectedFiber(Fibers* aFibers)
@@ -241,7 +248,7 @@ std::vector<bool> SelectionBox::getSelectedFiber(Fibers* aFibers)
 		y = pointArray[i*3+1];
 		z = pointArray[i*3+2];
 
-		if(insideBox(SelectionBox::Point(x,y,z)))
+		if(insideBox(Fibers::Point(x,y,z)))
 		{
 			pointsInsideObject.push_back(i);
 		}
@@ -253,15 +260,14 @@ std::vector<bool> SelectionBox::getSelectedFiber(Fibers* aFibers)
 		selectedFibers[reverseIdx[pointsInsideObject[idx]]] = true;
 	}
 
+	m_needUpdate = false;
 	return selectedFibers;
 }
 
-bool SelectionBox::insideBox(Point aPoint)
+bool SelectionBox::insideBox(Fibers::Point aPoint)
 {
 	bool isInside = false;
-	if(aPoint[X] <= m_maxX && aPoint[X] >= m_minX &&
-		aPoint[Y] <= m_maxY && aPoint[Y] >= m_minY &&
-		aPoint[Z] <= m_maxZ && aPoint[Z] >= m_minZ )
+	if(m_box.contains(aPoint))
 	{
 		isInside = true;
 	}

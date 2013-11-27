@@ -11,6 +11,7 @@ Fibers::Fibers(void)
     m_countPoints( 0 ),
     m_linePointers(),
     m_pointArray(),
+    m_pointArray2(),
     m_normalArray(),
     m_cfStartOfLine(),
     m_cfPointsPerLine(),
@@ -50,7 +51,7 @@ bool Fibers::load( const std::string &filename )
 
     //for now, just ".fib" extension are supported. later find a way to support many extention.
     res = loadDmri( filename );
-    
+
     return res;
 }
 
@@ -311,6 +312,7 @@ bool Fibers::loadDmri( const std::string &filename )
     m_pointArray.max_size();
     m_linePointers.resize( m_countLines + 1 );
     m_pointArray.resize( m_countPoints * 3 );
+    m_pointArray2.resize( m_countPoints);
     m_linePointers[m_countLines] = m_countPoints;
     m_reverse.resize( m_countPoints );
     m_selected.resize( m_countLines, false );
@@ -360,6 +362,11 @@ bool Fibers::loadDmri( const std::string &filename )
         }
     }
 
+    for(int i=0; i<m_countPoints; i++)
+    {
+    	m_pointArray2[i] = Point(m_pointArray[i*3],m_pointArray[i*3+1],m_pointArray[i*3+2]);
+    }
+
     m_max[0] = maxX - meanX;
     m_max[1] = maxY - meanY;
     m_max[2] = maxZ - meanZ;
@@ -367,6 +374,8 @@ bool Fibers::loadDmri( const std::string &filename )
     m_min[0] = minX - meanX;
 	m_min[1] = minY - meanY;
 	m_min[2] = minZ - meanZ;
+
+	m_box = Geometry::Box<float,3>(m_min,m_max);
 
     createColorArray( false );
     //m_type = FIBERS;
@@ -728,14 +737,23 @@ int Fibers::getStartIndexForLine( const int lineId ) const
     return m_linePointers[lineId];
 }
 
-Point Fibers::getBBMax() const
+Fibers::Point Fibers::getBBMax() const
 {
 	return m_max;
 }
 
-Point Fibers::getBBMin() const
+Fibers::Point Fibers::getBBMin() const
 {
 	return m_min;
+}
+
+bool Fibers::containsSelectionBox(Geometry::Box<float,3>  aBox)
+{
+	if(m_box.contains(aBox))
+	{
+		return true;
+	}
+	return false;
 }
 
 void Fibers::setSelectedFiber(const std::vector<bool>& aSelectedFiber)
