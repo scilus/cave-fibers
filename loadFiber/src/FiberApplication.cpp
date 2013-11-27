@@ -40,16 +40,13 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
     GLMotif::Button* loadButton=new GLMotif::Button("LoadButton",mainMenu,"Open");
     loadButton->getSelectCallbacks().add(this,&FiberApplication::OnLoadFiberCallBack);
 
-    GLMotif::Button* addSelectionBox=new GLMotif::Button("AddSelectionBox",mainMenu,"New Selection Box");
-    addSelectionBox->getSelectCallbacks().add(this,&FiberApplication::OnAddSelectionBoxCallBack);
-
-    GLMotif::CascadeButton* orientationButtonCascade=new GLMotif::CascadeButton("orientationButtonCascade",mainMenu,"Orientation");
+    /*GLMotif::CascadeButton* orientationButtonCascade=new GLMotif::CascadeButton("orientationButtonCascade",mainMenu,"Orientation");
     orientationButtonCascade->setPopup(createOrientationButtonMenu());
 
 	//Create a toggle button to show the render settings dialog:
 	GLMotif::ToggleButton* showPropertiesDialogToggle=new GLMotif::ToggleButton("showPropertiesDialogToggle",mainMenu,"Show Properties Dialog");
 	showPropertiesDialogToggle->setToggle(false);
-	showPropertiesDialogToggle->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);
+	showPropertiesDialogToggle->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);*/
 
     //Finish building the main menu:
     mainMenu->manageChild();
@@ -57,6 +54,9 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
     return mainMenuPopup;
 }
 
+
+//function for create the orientation subMenu. This orientation is for see the fiber in the choice direction
+//this function are not use for the moment
 GLMotif::Popup* FiberApplication::createOrientationButtonMenu(void)
 {
 	//Create the submenu's top-level shell:
@@ -91,6 +91,8 @@ GLMotif::Popup* FiberApplication::createOrientationButtonMenu(void)
 	return orientationButtonMenuPopup;
 }
 
+//Create the properties dialog for How show the fiber
+//this function are not use for the moment
 GLMotif::PopupWindow* FiberApplication::createPropertiesDialog(void)
 {
 	const GLMotif::StyleSheet& ss=*Vrui::getWidgetManager()->getStyleSheet();
@@ -206,6 +208,8 @@ void FiberApplication::OnLoadFiberCallBack(Misc::CallbackData* cbData)
 
 }
 
+//for show subdialog menu.
+//not use for the moment
 void FiberApplication::menuToggleSelectCallback(GLMotif::ToggleButton::ValueChangedCallbackData* cbData)
 {
 	//Adjust program state based on which toggle button changed state:
@@ -224,6 +228,7 @@ void FiberApplication::menuToggleSelectCallback(GLMotif::ToggleButton::ValueChan
 	}
 }
 
+//method for all slider call back
 void FiberApplication::sliderCallback(GLMotif::Slider::ValueChangedCallbackData* cbData)
 {
 }
@@ -258,11 +263,6 @@ void FiberApplication::ButtonSelectedCallBack(Misc::CallbackData* cbData)
 
 }
 
-void FiberApplication::OnAddSelectionBoxCallBack(Misc::CallbackData* cbData)
-{
-
-}
-
 FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
     :Vrui::Application(argc,argv,appDefaults),
      mainMenu(0),
@@ -272,7 +272,7 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
     mainMenu=createMainMenu();
 
     //create Popup Window
-    propertiesDialog = createPropertiesDialog();
+    //propertiesDialog = createPropertiesDialog();
 
     //Install the main menu:
     Vrui::setMainMenu(mainMenu);
