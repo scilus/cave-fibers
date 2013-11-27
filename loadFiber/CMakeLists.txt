@@ -48,12 +48,17 @@ SET(CAVEFIBER_SRC
     src/main.cpp
     src/fiber.cpp
     src/FiberApplication.cpp
-    src/SelectionBox.cpp)
+    src/SelectionBox.cpp
+    src/Nifti/nifti1_io.c
+    src/Nifti/znzlib.c)
     
 SET(CAVEFIBER_HDR
     src/fiber.h
     src/FiberApplication.h
-    src/SelectionBox.h)
+    src/SelectionBox.h
+    src/Nifti/zconf.h
+    src/Nifti/zlib.h
+    src/Nifti/znzlib.h)
 
 # Platform Specific Config 
 ##################################################
