@@ -8,6 +8,9 @@
 #include <Geometry/Vector.h>
 #include <Geometry/Rotation.h>
 #include <Geometry/OrthogonalTransformation.h>
+#include <vector>
+
+#include "fiber.h"
 
 
 class SelectionBox {
@@ -35,17 +38,20 @@ public:
 	Geometry::Box<float,3>::HitResult 	pickBox(Geometry::Ray<float,3> Ray);
 	void 								unPickBox();
 
+	std::vector<bool> getSelectedFiber(Fibers* aFiber);
 
 
 private:
 
 	// Functions
-	void     draw1() const;
-	void     draw2() const;
-	void     draw3() const;
-	void     draw4() const;
-	void     draw5() const;
-	void     draw6() const;
+	void    draw1() const;
+	void    draw2() const;
+	void    draw3() const;
+	void    draw4() const;
+	void    draw5() const;
+	void    draw6() const;
+
+	bool 	insideBox(Point aPoint);
 
 
 	bool 	m_isSelected;

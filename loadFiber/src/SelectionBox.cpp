@@ -218,4 +218,54 @@ SelectionBox::Point SelectionBox::getCenter() const
 	return m_center;
 }
 
+std::vector<bool> SelectionBox::getSelectedFiber(Fibers* aFibers)
+{
+	const int fibersCount( aFibers->getLineCount());
+
+	std::vector<bool> selectedFibers(fibersCount,false);
+
+	//octree call but for now it is that
+	std::vector<int> pointsInsideObject;
+
+	std::vector< float > pointArray = aFibers->getPointArray();
+	std::vector<int> reverseIdx = aFibers->getReverseIdx();
+
+	float x = 0;
+	float y = 0;
+	float z = 0;
+
+	//check for each point that they are in the selection box
+	for(int i=0; i<aFibers->getPointCount(); i++)
+	{
+		x = pointArray[i*3];
+		y = pointArray[i*3+1];
+		z = pointArray[i*3+2];
+
+		if(insideBox(SelectionBox::Point(x,y,z)))
+		{
+			pointsInsideObject.push_back(i);
+		}
+	}
+
+	//toggle all fiber associated to each point find
+	for(int idx = 0; idx < pointsInsideObject.size(); idx++)
+	{
+		selectedFibers[reverseIdx[pointsInsideObject[idx]]] = true;
+	}
+
+	return selectedFibers;
+}
+
+bool SelectionBox::insideBox(Point aPoint)
+{
+	bool isInside = false;
+	if(aPoint[X] <= m_maxX && aPoint[X] >= m_minX &&
+		aPoint[Y] <= m_maxY && aPoint[Y] >= m_minY &&
+		aPoint[Z] <= m_maxZ && aPoint[Z] >= m_minZ )
+	{
+		isInside = true;
+	}
+	return isInside;
+}
+
 

@@ -33,6 +33,7 @@ public:
 
     void    updateFibersColors();
 
+    void    resetLinesShown();
     void    updateLinesShown();
 
     void    initializeBuffer() const;
@@ -42,6 +43,8 @@ public:
     void    drawFakeTubes() const;
     void    drawSortedLines() const;
     void    drawCrossingFibers() const;
+
+    void 	invertFibers();
 
     float   getFiberLength( const int fiberId ) const;
 
@@ -53,10 +56,13 @@ public:
 
     //getter setters
     int     getLineCount() const;
+    int     getPointCount();
+    bool    isSelected( int  fiberId );
 
     const std::vector< float >&    getPointArray() const;
     const std::vector< float >&    getColorArray() const;
     const std::vector< float >&    getNormalArray() const;
+    std::vector< int > getReverseIdx() const;
 
     const bool& isUseFakeTubes() const;
     const bool& isUseTransparency() const;
@@ -65,6 +71,8 @@ public:
     //this function are use for set the camera position relative to the biggest dataset loaded
     Point 	getBBMax() const;
     Point 	getBBMin() const;
+
+    void setSelectedFiber(const std::vector<bool>& aSelectedFiber);
 
 
 private:

@@ -93,6 +93,7 @@ public:
     virtual ~FiberApplication(void); // Shuts down the Vrui toolkit
 
     void drawArrow(const Vrui::Point& to,Vrui::Scalar radius) const;
+    void updateSelectedFiber(Fibers* aFiber);
 
     //Methods from Vrui::Application:
     virtual void toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* cbData);

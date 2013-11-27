@@ -33,7 +33,6 @@ Fibers::Fibers(void)
     m_bufferObjects = new GLuint[3];
 }
 
-
 Fibers::~Fibers(void)
 {
     m_linePointers.clear();
@@ -63,6 +62,10 @@ void Fibers::updateFibersColors()
     }
 }
 
+void Fibers::resetLinesShown()
+{
+	m_selected.assign( m_countLines, false );
+}
 
 void Fibers::updateLinesShown()
 {
@@ -150,6 +153,10 @@ void Fibers::drawFiber() const
     //releaseShader();
 }
 
+void Fibers::invertFibers()
+{
+	m_fibersInverted = !m_fibersInverted;
+}
 
 bool Fibers::loadDmri( const std::string &filename )
 {
@@ -661,27 +668,46 @@ int Fibers::getLineCount() const
     return m_countLines;
 }
 
+int Fibers::getPointCount()
+{
+	return m_countPoints;
+}
+
+bool Fibers::isSelected( int  fiberId )
+{
+	return m_selected[fiberId];
+}
+
 const std::vector< float >& Fibers::getPointArray() const
 {
     return m_pointArray;
 }
+
 const std::vector< float >& Fibers::getColorArray() const
 {
     return m_colorArray;
 }
+
 const std::vector< float >& Fibers::getNormalArray() const
 {
     return m_normalArray;
+}
+
+std::vector< int > Fibers::getReverseIdx() const
+{
+	return m_reverse;
 }
 
 const bool& Fibers::isUseFakeTubes() const
 {
     return m_useFakeTubes;
 }
+
 const bool& Fibers::isUseTransparency() const
 {
     return m_useTransparency;
 }
+
 const bool& Fibers::isUseIntersectedFibers() const
 {
     return m_useIntersectedFibers;
@@ -706,9 +732,15 @@ Point Fibers::getBBMax() const
 {
 	return m_max;
 }
+
 Point Fibers::getBBMin() const
 {
 	return m_min;
+}
+
+void Fibers::setSelectedFiber(const std::vector<bool>& aSelectedFiber)
+{
+	m_selected = aSelectedFiber;
 }
 
 void Fibers::setShader()

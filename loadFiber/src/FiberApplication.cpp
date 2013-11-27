@@ -235,6 +235,34 @@ void FiberApplication::toolDestructionCallback(Vrui::ToolManager::ToolDestructio
     }
 }
 
+void FiberApplication::updateSelectedFiber(Fibers* aFiber)
+{
+	const int fibersCount( aFiber->getLineCount());
+
+	std::vector<bool> selectedFibers(fibersCount,false);
+
+	std::vector<bool> subSelectedFibers;
+
+	//fiind all fibers that pass in selection boxes
+	for(std::vector<SelectionBox*>::iterator it = m_SelectionBox.begin(); it != m_SelectionBox.end(); it++)
+	{
+		if((*it)->isActive())
+		{
+			subSelectedFibers = (*it)->getSelectedFiber(aFiber);
+
+			if(subSelectedFibers.size() == fibersCount)
+			{
+				for(int i=0; i< fibersCount; i++)
+				{
+					selectedFibers[i] = selectedFibers[i] || subSelectedFibers[i];
+				}
+			}
+		}
+	}
+
+	aFiber->setSelectedFiber(selectedFibers);
+}
+
 void FiberApplication::frame(void)
 {
     /*********************************************************************
@@ -243,15 +271,11 @@ void FiberApplication::frame(void)
     or Vrui state (run simulations, animate models, synchronize with
     background threads, change the navigation transformation, etc.).
     *********************************************************************/
-
-    bool aBoxActive = false;
-    for(std::vector<SelectionBox*>::iterator it = m_SelectionBox.begin(); it != m_SelectionBox.end(); it++)
-    {
-        if((*it)->isActive())
-        {
-            //TODO updatefiber
-        }
-    }
+	//update fibers selected if there are a selection box
+	if(m_SelectionBox.size() !=0)
+	{
+		updateSelectedFiber(&mFibers);
+	}
     //Get the time since the last frame:
     double frameTime=Vrui::getCurrentFrameTime();
 
