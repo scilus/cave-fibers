@@ -49,6 +49,8 @@ SET(CAVEFIBER_SRC
     src/fiber.cpp
     src/FiberApplication.cpp
     src/SelectionBox.cpp
+    src/Anatomy.cpp
+    src/DataSetInfo.cpp
     src/Nifti/nifti1_io.c
     src/Nifti/znzlib.c)
     
@@ -56,6 +58,8 @@ SET(CAVEFIBER_HDR
     src/fiber.h
     src/FiberApplication.h
     src/SelectionBox.h
+    src/Anatomy.h
+    src/DataSetInfo.h
     src/Nifti/zconf.h
     src/Nifti/zlib.h
     src/Nifti/znzlib.h)

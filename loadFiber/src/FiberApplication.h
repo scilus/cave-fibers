@@ -27,6 +27,7 @@
 class FiberApplication:public Vrui::Application,public GLObject
 {
 public:
+	typedef DataSetInfo::Point Point;
 	typedef SelectionBox::ONTransform ONTransform; // Type for object positions/orientations
 
     //Embedded classes:
