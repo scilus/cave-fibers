@@ -62,27 +62,27 @@ GLMotif::Popup* FiberApplication::createOrientationButtonMenu(void)
     //Create the submenu's top-level shell:
     GLMotif::Popup* orientationButtonMenuPopup=new GLMotif::Popup("orientationButtonMenuPopup",Vrui::getWidgetManager());
 
-    //Create the array of rorientation buttons inside the top-level shell:
+    //Create the array of orientation buttons inside the top-level shell:
     GLMotif::SubMenu* orientationButtonMenu=new GLMotif::SubMenu("orientationButtonMenu",orientationButtonMenuPopup,false);
 
     //these callback are not implemented
-    GLMotif::Button* left=new GLMotif::Button("LeftButton",orientationButtonMenu,"orientation to left");
-    left->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
+    GLMotif::Button* leftButton=new GLMotif::Button("LeftButton",orientationButtonMenu,"orientation to left");
+    leftButton->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
 
-    GLMotif::Button* front=new GLMotif::Button("FrontButton",orientationButtonMenu,"orientation to front");
-    front->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
+    GLMotif::Button* frontButton=new GLMotif::Button("FrontButton",orientationButtonMenu,"orientation to front");
+    frontButton->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
 
-    GLMotif::Button* right=new GLMotif::Button("RightButton",orientationButtonMenu,"orientation to right");
-    right->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
+    GLMotif::Button* rightButton=new GLMotif::Button("RightButton",orientationButtonMenu,"orientation to right");
+    rightButton->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
 
-    GLMotif::Button* behind=new GLMotif::Button("BehindButton",orientationButtonMenu,"orientation to behind");
-    behind->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
+    GLMotif::Button* behindButton=new GLMotif::Button("BehindButton",orientationButtonMenu,"orientation to behind");
+    behindButton->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
 
-    GLMotif::Button* above=new GLMotif::Button("AboveButton",orientationButtonMenu,"orientation to above");
-    above->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
+    GLMotif::Button* aboveButton=new GLMotif::Button("AboveButton",orientationButtonMenu,"orientation to above");
+    aboveButton->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
 
-    GLMotif::Button* below=new GLMotif::Button("BelowButton",orientationButtonMenu,"orientation to below");
-    below->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
+    GLMotif::Button* belowButton=new GLMotif::Button("BelowButton",orientationButtonMenu,"orientation to below");
+    belowButton->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
 
     /* Calculate the submenu's proper layout: */
     orientationButtonMenu->manageChild();

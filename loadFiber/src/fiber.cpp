@@ -199,6 +199,9 @@ bool fiber::loadDmri( const std::string &filename )
         return false;
     }
 
+    //delete the previous fibers dataset before load a new one.
+    resetFiber();
+
     char *pS1 = new char[10];
     char *pS2 = new char[10];
     char *pS3 = new char[10];
@@ -798,6 +801,37 @@ void fiber::releaseShader()
     {
         ShaderHelper::getInstance()->getFibersShader()->release();
     }*/
+}
+
+void fiber::resetFiber()
+{
+    //clear all vector
+    m_linePointers.clear();
+    m_reverse.clear();
+    m_pointArray.clear();
+    m_normalArray.clear();
+    m_colorArray.clear();
+    m_cfStartOfLine.clear();
+    m_cfPointsPerLine.clear();
+    m_selected.clear();
+    m_filtered.clear();
+
+    glDeleteBuffers( 3, m_bufferObjects );
+
+    m_countLines = 0;
+    m_countPoints = 0;
+    m_isInitialized = false;
+    m_fibersInverted = false;
+    m_isInitialized = false;
+    m_useFakeTubes = false;
+    m_useTransparency = false;
+    m_useIntersectedFibers = false;
+    m_threshold = 0.0f;
+    m_fiberColorationMode = NORMAL_COLOR;
+    m_cachedThreshold = 0.0f;
+    m_showFS = true;
+
+    m_bufferObjects = new GLuint[3];
 }
 
 //method not tested

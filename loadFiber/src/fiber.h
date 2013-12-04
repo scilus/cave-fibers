@@ -75,6 +75,7 @@ private:
 
     void    setShader();
     void    releaseShader();
+    void    resetFiber();
 
     int                         m_countLines;
     int                         m_countPoints;
