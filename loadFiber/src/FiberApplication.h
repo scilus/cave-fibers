@@ -36,9 +36,6 @@ public:
 
             //Create a display list:
             displayListId=glGenLists(1);
-
-            //create buffer
-            bufferObjects = new GLuint[3];
         };
         virtual ~DataItem(void)
         {
@@ -61,7 +58,7 @@ public:
 
 		//Constructors and destructors:
 		public:
-		ObjectDragger(Vrui::DraggingTool* sTool,FiberApplication* sApplication);
+		ObjectDragger(Vrui::DraggingTool* sTool, FiberApplication* sApplication);
 
 		//Methods:
 		virtual void dragStartCallback(Vrui::DraggingTool::DragStartCallbackData* cbData);
@@ -89,10 +86,11 @@ public:
 
     //Constructors and destructors:
     public:
-    FiberApplication(int& argc,char**& argv,char**& appDefaults); // Initializes the Vrui toolkit and the application
+    FiberApplication(int& argc, char**& argv, char**& appDefaults); // Initializes the Vrui toolkit and the application
     virtual ~FiberApplication(void); // Shuts down the Vrui toolkit
 
-    void drawArrow(const Vrui::Point& to,Vrui::Scalar radius) const;
+    void drawArrow(const Vrui::Point& to, Vrui::Scalar radius) const;
+    void updateSelectedFiber(Fibers* pFiber);
 
     //Methods from Vrui::Application:
     virtual void toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* cbData);

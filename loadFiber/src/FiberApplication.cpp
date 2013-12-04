@@ -12,7 +12,7 @@
 
 #include <algorithm>    // std::find
 
-void FiberApplication::drawArrow(const Vrui::Point& to,Vrui::Scalar radius) const
+void FiberApplication::drawArrow(const Vrui::Point& to, Vrui::Scalar radius) const
 {
         Vrui::Scalar tipHeight=radius*Vrui::Scalar(6.0);
         Vrui::Scalar shaftLength=Geometry::dist(Vrui::Point::origin,to)-tipHeight;
@@ -27,7 +27,7 @@ void FiberApplication::drawArrow(const Vrui::Point& to,Vrui::Scalar radius) cons
         glPopMatrix();
 }
 
-FiberApplication::ObjectDragger::ObjectDragger(Vrui::DraggingTool* sTool,FiberApplication* sApplication)
+FiberApplication::ObjectDragger::ObjectDragger(Vrui::DraggingTool* sTool, FiberApplication* sApplication)
     :Vrui::DraggingToolAdapter(sTool),
      application(sApplication),
      dragging(false),
@@ -59,17 +59,17 @@ void FiberApplication::ObjectDragger::dragStartCallback(Vrui::DraggingTool::Drag
         }
         else
         {
-        	for(int i=0; i<selectionBox.size();i++)
-			{
-				float dist = selectionBox[i]->pickBox(cbData->startTransformation.getOrigin());
+            for(int i=0; i<selectionBox.size();i++)
+            {
+                float dist = selectionBox[i]->pickBox(cbData->startTransformation.getOrigin());
 
-				if(dist<minLambda)
-				{
-					isHit = true;
-					m_selectedBox=selectionBox[i];
-					minLambda=dist;
-				}
-			}
+                if(dist<minLambda)
+                {
+                    isHit = true;
+                    m_selectedBox=selectionBox[i];
+                    minLambda=dist;
+                }
+            }
         }
 
         if(isHit)
@@ -133,8 +133,8 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
 void FiberApplication::resetNavigationCallback(Misc::CallbackData* cbData)
 {
     //Reset the Vrui navigation transformation:
-    Vrui::Point center = Point::origin;
-    Vrui::Scalar radius = Geometry::dist(Point::origin,mFibers.getBBMax());
+    Vrui::Point center = Fibers::Point::origin;
+    Vrui::Scalar radius = Geometry::dist(Fibers::Point::origin,mFibers.getBBMax());
     Vrui::setNavigationTransformation(center, radius);
 
     /*********************************************************************
@@ -146,9 +146,9 @@ void FiberApplication::resetNavigationCallback(Misc::CallbackData* cbData)
 
 void FiberApplication::OnAddSelectionBoxCallBack(Misc::CallbackData* cbData)
 {
-    Point center( 0,0,0);
+    Fibers::Point center( 0,0,0);
 
-    Point size( 10.0,10.0,10.0);
+    Fibers::Point size( 10.0,10.0,10.0);
 
     m_SelectionBox.push_back(new SelectionBox(center,size));
 }
@@ -158,7 +158,7 @@ std::vector<SelectionBox*>& FiberApplication::getSelectionBoxVector()
     return m_SelectionBox;
 }
 
-FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
+FiberApplication::FiberApplication(int& argc, char**& argv, char**& appDefaults)
     :Vrui::Application(argc,argv,appDefaults),
      mainMenu(0)
 {
@@ -235,6 +235,29 @@ void FiberApplication::toolDestructionCallback(Vrui::ToolManager::ToolDestructio
     }
 }
 
+void FiberApplication::updateSelectedFiber(Fibers* pFiber)
+{
+    const int fibersCount( pFiber->getLineCount());
+
+    std::vector<bool> selectedFibers(fibersCount,false);
+
+    //find all fibers that pass in selection boxes
+    for(std::vector<SelectionBox*>::iterator it = m_SelectionBox.begin(); it != m_SelectionBox.end(); it++)
+    {
+        if((*it)->isActive() && mFibers.containsSelectionBox((*it)->getBoundingBox()))
+        {
+            std::vector<bool> subSelectedFibers = (*it)->getSelectedFibers(pFiber);
+
+            for(int i=0; i< fibersCount; i++)
+            {
+                selectedFibers[i] = selectedFibers[i] || subSelectedFibers[i];
+            }
+        }
+    }
+
+    pFiber->setSelectedFiber(selectedFibers);
+}
+
 void FiberApplication::frame(void)
 {
     /*********************************************************************
@@ -243,14 +266,10 @@ void FiberApplication::frame(void)
     or Vrui state (run simulations, animate models, synchronize with
     background threads, change the navigation transformation, etc.).
     *********************************************************************/
-
-    bool aBoxActive = false;
-    for(std::vector<SelectionBox*>::iterator it = m_SelectionBox.begin(); it != m_SelectionBox.end(); it++)
+    //update fibers selected if there is at least one selection box.
+    if(m_SelectionBox.size() !=0)
     {
-        if((*it)->isActive())
-        {
-            //TODO updatefiber
-        }
+        updateSelectedFiber(&mFibers);
     }
     //Get the time since the last frame:
     double frameTime=Vrui::getCurrentFrameTime();

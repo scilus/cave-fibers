@@ -33,7 +33,6 @@ Fibers::Fibers(void)
     m_bufferObjects = new GLuint[3];
 }
 
-
 Fibers::~Fibers(void)
 {
     m_linePointers.clear();
@@ -51,7 +50,7 @@ bool Fibers::load( const std::string &filename )
 
     //for now, just ".fib" extension are supported. later find a way to support many extention.
     res = loadDmri( filename );
-    
+
     return res;
 }
 
@@ -63,6 +62,10 @@ void Fibers::updateFibersColors()
     }
 }
 
+void Fibers::resetLinesShown()
+{
+    m_selected.assign( m_countLines, false );
+}
 
 void Fibers::updateLinesShown()
 {
@@ -150,6 +153,10 @@ void Fibers::drawFiber() const
     //releaseShader();
 }
 
+void Fibers::invertFibers()
+{
+    m_fibersInverted = !m_fibersInverted;
+}
 
 bool Fibers::loadDmri( const std::string &filename )
 {
@@ -358,8 +365,10 @@ bool Fibers::loadDmri( const std::string &filename )
     m_max[2] = maxZ - meanZ;
 
     m_min[0] = minX - meanX;
-	m_min[1] = minY - meanY;
-	m_min[2] = minZ - meanZ;
+    m_min[1] = minY - meanY;
+    m_min[2] = minZ - meanZ;
+
+    m_box = Geometry::Box<float,3>(m_min,m_max);
 
     createColorArray( false );
     //m_type = FIBERS;
@@ -368,7 +377,7 @@ bool Fibers::loadDmri( const std::string &filename )
     return true;
 }
 
-void Fibers::createColorArray( const bool colorsLoadedFromFile )
+void Fibers::createColorArray(const bool colorsLoadedFromFile)
 {
     if( !colorsLoadedFromFile )
     {
@@ -661,27 +670,46 @@ int Fibers::getLineCount() const
     return m_countLines;
 }
 
+int Fibers::getPointCount()
+{
+    return m_countPoints;
+}
+
+bool Fibers::isSelected( int  fiberId )
+{
+    return m_selected[fiberId];
+}
+
 const std::vector< float >& Fibers::getPointArray() const
 {
     return m_pointArray;
 }
+
 const std::vector< float >& Fibers::getColorArray() const
 {
     return m_colorArray;
 }
+
 const std::vector< float >& Fibers::getNormalArray() const
 {
     return m_normalArray;
+}
+
+std::vector< int > Fibers::getReverseIdx() const
+{
+    return m_reverse;
 }
 
 const bool& Fibers::isUseFakeTubes() const
 {
     return m_useFakeTubes;
 }
+
 const bool& Fibers::isUseTransparency() const
 {
     return m_useTransparency;
 }
+
 const bool& Fibers::isUseIntersectedFibers() const
 {
     return m_useIntersectedFibers;
@@ -702,13 +730,28 @@ int Fibers::getStartIndexForLine( const int lineId ) const
     return m_linePointers[lineId];
 }
 
-Point Fibers::getBBMax() const
+Fibers::Point Fibers::getBBMax() const
 {
-	return m_max;
+    return m_max;
 }
-Point Fibers::getBBMin() const
+
+Fibers::Point Fibers::getBBMin() const
 {
-	return m_min;
+    return m_min;
+}
+
+bool Fibers::containsSelectionBox(Geometry::Box<float,3>  aBox)
+{
+    if(m_box.contains(aBox))
+    {
+        return true;
+    }
+    return false;
+}
+
+void Fibers::setSelectedFiber(const std::vector<bool>& aSelectedFiber)
+{
+    m_selected = aSelectedFiber;
 }
 
 void Fibers::setShader()

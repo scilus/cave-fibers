@@ -8,6 +8,7 @@
 
 #include <GL/glew.h>
 #include <Geometry/Point.h>
+#include <Geometry/Box.h>
 
 ///////////////////////////////////////////////////////////////////////////
 // Enum representing the different type of fiber coloration mode.
@@ -20,11 +21,12 @@ enum FibersColorationMode
     CUSTOM_COLOR        = 3,    // This one is used only for the mean fiber. Should be moved.
     CONSTANT_COLOR      = 4
 };
-typedef Geometry::Point<float,3> Point;
 
 class Fibers
 {
 public:
+    typedef Geometry::Point<float,3> Point;
+
     Fibers(void);
     ~Fibers(void);
 
@@ -33,6 +35,7 @@ public:
 
     void    updateFibersColors();
 
+    void    resetLinesShown();
     void    updateLinesShown();
 
     void    initializeBuffer() const;
@@ -42,6 +45,8 @@ public:
     void    drawFakeTubes() const;
     void    drawSortedLines() const;
     void    drawCrossingFibers() const;
+
+    void     invertFibers();
 
     float   getFiberLength( const int fiberId ) const;
 
@@ -53,18 +58,25 @@ public:
 
     //getter setters
     int     getLineCount() const;
+    int     getPointCount();
+    bool    isSelected( int  fiberId );
 
     const std::vector< float >&    getPointArray() const;
     const std::vector< float >&    getColorArray() const;
     const std::vector< float >&    getNormalArray() const;
+    std::vector< int > getReverseIdx() const;
 
     const bool& isUseFakeTubes() const;
     const bool& isUseTransparency() const;
     const bool& isUseIntersectedFibers() const;
 
     //this function are use for set the camera position relative to the biggest dataset loaded
-    Point 	getBBMax() const;
-    Point 	getBBMin() const;
+    Point     getBBMax() const;
+    Point     getBBMin() const;
+
+    bool containsSelectionBox(Geometry::Box<float,3>  aBox);
+
+    void setSelectedFiber(const std::vector<bool>& aSelectedFiber);
 
 
 private:
@@ -104,8 +116,10 @@ private:
     GLuint*                     m_bufferObjects;
     bool                        m_showFS;       // Show front sector for meshs.
 
-    Point						m_max;
-    Point						m_min;
+    Geometry::Box<float,3>      m_box;
+
+    Point                       m_max;
+    Point                       m_min;
 
 };
 
