@@ -244,6 +244,7 @@ void FiberApplication::loadFiberOKCallback(GLMotif::FileSelectionDialog::OKCallb
     //load Fiber
     mFibers.load(fileName);
 
+    mFibers.initializeBuffer();
     inLoadFiber = false;
 }
 
@@ -263,8 +264,10 @@ void FiberApplication::ButtonSelectedCallBack(Misc::CallbackData* cbData)
 FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
     :Vrui::Application(argc,argv,appDefaults),
      mainMenu(0),
-     propertiesDialog(0)
+     propertiesDialog(0),
+     m_fileName("")
 {
+    processCommandLineArguments(argc,argv);
     //Create the user interface:
     mainMenu=createMainMenu();
 
@@ -273,6 +276,11 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
 
     //Install the main menu:
     Vrui::setMainMenu(mainMenu);
+
+    if(m_fileName != "")
+    {
+        mFibers.load(m_fileName);
+    }
 
     //Set the navigation transformation:
     resetNavigationCallback(0);
@@ -294,6 +302,12 @@ void FiberApplication::frame(void)
     background threads, change the navigation transformation, etc.).
     *********************************************************************/
 
+    //we cannot initialize buffer before the initialize glew.
+    if(m_fileName != "")
+    {
+        m_fileName = "";
+        mFibers.initializeBuffer();
+    }
     //Get the time since the last frame:
     double frameTime=Vrui::getCurrentFrameTime();
 
@@ -350,7 +364,7 @@ void FiberApplication::initContext(GLContextData& contextData) const
     object for retrieval in the display method.
     *********************************************************************/
 
-    //init glew lib
+    //init glew lib, cannot init in constructor because the application not launch
     GLenum errorCode = glewInit();
 
     if( GLEW_OK != errorCode )
@@ -373,5 +387,20 @@ void FiberApplication::initContext(GLContextData& contextData) const
 
     //Finish the display list:
     glEndList();
+}
+
+void FiberApplication::processCommandLineArguments(int& argc, char**& argv)
+{
+    for (int i = 1; i < argc; ++i)
+    {
+        if (argv[i][0] == '-')
+        {
+            if (strcasecmp(argv[i] + 1, "file") == 0)
+            {
+                ++i;
+                m_fileName = argv[i];
+            }
+        }
+    }
 }
 

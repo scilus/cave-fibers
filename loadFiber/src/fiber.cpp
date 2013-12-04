@@ -52,7 +52,6 @@ bool fiber::load( const std::string &filename )
     if(res)
     {
         updateLinesShown();
-        initializeBuffer();
     }
 
     return res;
@@ -816,8 +815,6 @@ void fiber::resetFiber()
     m_selected.clear();
     m_filtered.clear();
 
-    glDeleteBuffers( 3, m_bufferObjects );
-
     m_countLines = 0;
     m_countPoints = 0;
     m_isInitialized = false;
@@ -831,7 +828,7 @@ void fiber::resetFiber()
     m_cachedThreshold = 0.0f;
     m_showFS = true;
 
-    m_bufferObjects = new GLuint[3];
+    //m_bufferObjects = new GLuint[3];
 }
 
 //method not tested

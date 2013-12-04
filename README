@@ -40,10 +40,9 @@ PRESS 'c' again for further configuration
 PRESS 'g' to generate the build system including the Makefiles.
 > make
 
-For the moment the poossibility to choose a file are not implemented. 
-Copy a .fib file to the build folder. The file name are fibers.fib, 
-you can change it in src/fiberapplication.cpp:  
-	change: std::string fileName = "fibers.fib"; to std::string fileName = "'filepath'.fib"
+The poossibility to choose a file are implemented. Choose open option in context menu
+And the possibility to add file in command line are implmented to. It can be use like that:
+-file "filepath'.fib"  the -file option it is for dissociated the vrui parameter to the filepath
 
 
 Now the "build" directory should contain an executable named Cave_Fibers.

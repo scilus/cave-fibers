@@ -62,7 +62,6 @@ public:
     const bool& isUseTransparency() const;
     const bool& isUseIntersectedFibers() const;
 
-
 private:
     bool    loadDmri(const std::string &filename );
 

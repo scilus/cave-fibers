@@ -59,6 +59,7 @@ class FiberApplication:public Vrui::Application,public GLObject
     GLMotif::PopupWindow* propertiesDialog; // The properties settings dialog
 
     fiber mFibers;
+    std::string m_fileName;
 
     bool useFakeTube;
     bool inLoadFiber;
@@ -87,6 +88,8 @@ class FiberApplication:public Vrui::Application,public GLObject
 
     //Methods from GLObject:
     virtual void initContext(GLContextData& contextData) const; // Called once upon creation of each OpenGL context
+
+    void processCommandLineArguments(int& argc, char**& argv);
 };
 
 
