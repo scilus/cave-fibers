@@ -28,7 +28,7 @@ public:
     ~fiber(void);
 
     // Fibers loading methods
-    bool	load( const std::string &filename );
+    bool    load( const std::string &filename );
 
     void    updateFibersColors();
 
@@ -87,18 +87,18 @@ private:
     std::vector< bool >         m_filtered;
     std::vector< unsigned int > m_cfStartOfLine;
     std::vector< unsigned int > m_cfPointsPerLine;
-    int                        	m_type;
-    std::string                	m_fullPath;
-    bool                      	m_fibersInverted;
-    bool                      	m_isInitialized;
-    bool                     	m_useFakeTubes;
-    bool                       	m_useTransparency;
-    float                     	m_cachedThreshold;
-    float                   	m_threshold;
-    bool                    	m_useIntersectedFibers;
-    FibersColorationMode      	m_fiberColorationMode;
-    GLuint*                 	m_bufferObjects;
-    bool                    	m_showFS;       // Show front sector for meshs.
+    int                         m_type;
+    std::string                 m_fullPath;
+    bool                        m_fibersInverted;
+    bool                        m_isInitialized;
+    bool                        m_useFakeTubes;
+    bool                        m_useTransparency;
+    float                       m_cachedThreshold;
+    float                       m_threshold;
+    bool                        m_useIntersectedFibers;
+    FibersColorationMode        m_fiberColorationMode;
+    GLuint*                     m_bufferObjects;
+    bool                        m_showFS;       // Show front sector for meshs.
 
 };
 

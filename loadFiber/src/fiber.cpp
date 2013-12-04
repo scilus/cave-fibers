@@ -49,6 +49,12 @@ bool fiber::load( const std::string &filename )
     //for now, just ".fib" extension are supported. later find a way to support many extention.
     res = loadDmri( filename );
     
+    if(res)
+    {
+        updateLinesShown();
+        initializeBuffer();
+    }
+
     return res;
 }
 
@@ -96,10 +102,10 @@ void fiber::initializeBuffer()
 
 void fiber::initDraw()
 {
-	if(!m_isInitialized)
-	{
-		return;
-	}
+    if(!m_isInitialized)
+    {
+        return;
+    }
     setShader();
 
     if( m_cachedThreshold != m_threshold )
@@ -116,32 +122,32 @@ void fiber::initDraw()
 
 void fiber::draw() const
 {
-	if(!m_isInitialized)
-	{
-		return;
-	}
-	//draw fiber depending of the option choose by the user (It is not implemented for the moment)
-	if(isUseFakeTubes())
-	{
-		drawFakeTubes();
-	}
-	else if(isUseTransparency())
-	{
-		glPushAttrib( GL_ALL_ATTRIB_BITS );
-		glEnable( GL_BLEND );
-		glBlendFunc( GL_ONE, GL_ONE );
-		glDepthMask( GL_FALSE );
-		drawSortedLines();
-		glPopAttrib();
-	}
-	else if(isUseIntersectedFibers())
-	{
-		drawCrossingFibers();
-	}
-	else
-	{
-		drawFiber();
-	}
+    if(!m_isInitialized)
+    {
+        return;
+    }
+    //draw fiber depending of the option choose by the user (It is not implemented for the moment)
+    if(isUseFakeTubes())
+    {
+        drawFakeTubes();
+    }
+    else if(isUseTransparency())
+    {
+        glPushAttrib( GL_ALL_ATTRIB_BITS );
+        glEnable( GL_BLEND );
+        glBlendFunc( GL_ONE, GL_ONE );
+        glDepthMask( GL_FALSE );
+        drawSortedLines();
+        glPopAttrib();
+    }
+    else if(isUseIntersectedFibers())
+    {
+        drawCrossingFibers();
+    }
+    else
+    {
+        drawFiber();
+    }
 }
 
 void fiber::drawFiber() const

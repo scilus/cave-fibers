@@ -29,8 +29,8 @@ class FiberApplication:public Vrui::Application,public GLObject
     {
         //Elements:
         public:
-        GLuint     	textureObjectId; // Texture object ID of some texture
-        GLuint     	displayListId; // Display list ID of some display list
+        GLuint         textureObjectId; // Texture object ID of some texture
+        GLuint         displayListId; // Display list ID of some display list
 
         //Constructors and destructors:
         DataItem(void)
@@ -69,10 +69,10 @@ class FiberApplication:public Vrui::Application,public GLObject
     GLMotif::Popup* createOrientationButtonMenu(void);
 
     void resetNavigationCallback(Misc::CallbackData* cbData); // Method to reset the Vrui navigation transformation to its default
-    void OnLoadFiberCallBack(Misc::CallbackData* cbData);	  // Method call when the load button are press
+    void OnLoadFiberCallBack(Misc::CallbackData* cbData);      // Method call when the load button are press
     void menuToggleSelectCallback(GLMotif::ToggleButton::ValueChangedCallbackData* cbData);
     void sliderCallback(GLMotif::Slider::ValueChangedCallbackData* cbData);
-    void loadFiberOKCallback(GLMotif::FileSelectionDialog::OKCallbackData* cbData);	// Method called when the Ok button are press in FileSelectionDialog
+    void loadFiberOKCallback(GLMotif::FileSelectionDialog::OKCallbackData* cbData);// Method called when the Ok button are press in FileSelectionDialog
     void loadFiberCancelCallback(GLMotif::FileSelectionDialog::CancelCallbackData* cbData); // Method called when the cancel button are press in FileSelectionDialog
     void ButtonSelectedCallBack(Misc::CallbackData* cbData);
 
