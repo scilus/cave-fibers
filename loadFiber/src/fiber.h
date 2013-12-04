@@ -25,7 +25,7 @@ enum FibersColorationMode
 class Fibers
 {
 public:
-	typedef Geometry::Point<float,3> Point;
+    typedef Geometry::Point<float,3> Point;
 
     Fibers(void);
     ~Fibers(void);
@@ -46,7 +46,7 @@ public:
     void    drawSortedLines() const;
     void    drawCrossingFibers() const;
 
-    void 	invertFibers();
+    void     invertFibers();
 
     float   getFiberLength( const int fiberId ) const;
 
@@ -71,8 +71,8 @@ public:
     const bool& isUseIntersectedFibers() const;
 
     //this function are use for set the camera position relative to the biggest dataset loaded
-    Point 	getBBMax() const;
-    Point 	getBBMin() const;
+    Point     getBBMax() const;
+    Point     getBBMin() const;
 
     bool containsSelectionBox(Geometry::Box<float,3>  aBox);
 
@@ -96,7 +96,6 @@ private:
     int                         m_countPoints;
     std::vector< int >          m_linePointers;
     std::vector< float >        m_pointArray;
-    std::vector< Point >        m_pointArray2;
     std::vector< float >        m_colorArray;
     std::vector< float >        m_normalArray;
     std::vector< int >          m_reverse;
@@ -117,10 +116,10 @@ private:
     GLuint*                     m_bufferObjects;
     bool                        m_showFS;       // Show front sector for meshs.
 
-    Geometry::Box<float,3> 		m_box;
+    Geometry::Box<float,3>      m_box;
 
-    Point						m_max;
-    Point						m_min;
+    Point                       m_max;
+    Point                       m_min;
 
 };
 

@@ -11,7 +11,6 @@ Fibers::Fibers(void)
     m_countPoints( 0 ),
     m_linePointers(),
     m_pointArray(),
-    m_pointArray2(),
     m_normalArray(),
     m_cfStartOfLine(),
     m_cfPointsPerLine(),
@@ -65,7 +64,7 @@ void Fibers::updateFibersColors()
 
 void Fibers::resetLinesShown()
 {
-	m_selected.assign( m_countLines, false );
+    m_selected.assign( m_countLines, false );
 }
 
 void Fibers::updateLinesShown()
@@ -156,7 +155,7 @@ void Fibers::drawFiber() const
 
 void Fibers::invertFibers()
 {
-	m_fibersInverted = !m_fibersInverted;
+    m_fibersInverted = !m_fibersInverted;
 }
 
 bool Fibers::loadDmri( const std::string &filename )
@@ -312,7 +311,6 @@ bool Fibers::loadDmri( const std::string &filename )
     m_pointArray.max_size();
     m_linePointers.resize( m_countLines + 1 );
     m_pointArray.resize( m_countPoints * 3 );
-    m_pointArray2.resize( m_countPoints);
     m_linePointers[m_countLines] = m_countPoints;
     m_reverse.resize( m_countPoints );
     m_selected.resize( m_countLines, false );
@@ -362,20 +360,15 @@ bool Fibers::loadDmri( const std::string &filename )
         }
     }
 
-    for(int i=0; i<m_countPoints; i++)
-    {
-    	m_pointArray2[i] = Point(m_pointArray[i*3],m_pointArray[i*3+1],m_pointArray[i*3+2]);
-    }
-
     m_max[0] = maxX - meanX;
     m_max[1] = maxY - meanY;
     m_max[2] = maxZ - meanZ;
 
     m_min[0] = minX - meanX;
-	m_min[1] = minY - meanY;
-	m_min[2] = minZ - meanZ;
+    m_min[1] = minY - meanY;
+    m_min[2] = minZ - meanZ;
 
-	m_box = Geometry::Box<float,3>(m_min,m_max);
+    m_box = Geometry::Box<float,3>(m_min,m_max);
 
     createColorArray( false );
     //m_type = FIBERS;
@@ -384,7 +377,7 @@ bool Fibers::loadDmri( const std::string &filename )
     return true;
 }
 
-void Fibers::createColorArray( const bool colorsLoadedFromFile )
+void Fibers::createColorArray(const bool colorsLoadedFromFile)
 {
     if( !colorsLoadedFromFile )
     {
@@ -679,12 +672,12 @@ int Fibers::getLineCount() const
 
 int Fibers::getPointCount()
 {
-	return m_countPoints;
+    return m_countPoints;
 }
 
 bool Fibers::isSelected( int  fiberId )
 {
-	return m_selected[fiberId];
+    return m_selected[fiberId];
 }
 
 const std::vector< float >& Fibers::getPointArray() const
@@ -704,7 +697,7 @@ const std::vector< float >& Fibers::getNormalArray() const
 
 std::vector< int > Fibers::getReverseIdx() const
 {
-	return m_reverse;
+    return m_reverse;
 }
 
 const bool& Fibers::isUseFakeTubes() const
@@ -739,26 +732,26 @@ int Fibers::getStartIndexForLine( const int lineId ) const
 
 Fibers::Point Fibers::getBBMax() const
 {
-	return m_max;
+    return m_max;
 }
 
 Fibers::Point Fibers::getBBMin() const
 {
-	return m_min;
+    return m_min;
 }
 
 bool Fibers::containsSelectionBox(Geometry::Box<float,3>  aBox)
 {
-	if(m_box.contains(aBox))
-	{
-		return true;
-	}
-	return false;
+    if(m_box.contains(aBox))
+    {
+        return true;
+    }
+    return false;
 }
 
 void Fibers::setSelectedFiber(const std::vector<bool>& aSelectedFiber)
 {
-	m_selected = aSelectedFiber;
+    m_selected = aSelectedFiber;
 }
 
 void Fibers::setShader()
