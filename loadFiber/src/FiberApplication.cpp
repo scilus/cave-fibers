@@ -37,8 +37,8 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
     //Add a callback to the button:
     resetNavigationButton->getSelectCallbacks().add(this,&FiberApplication::resetNavigationCallback);
 
-    GLMotif::Button* loadButton=new GLMotif::Button("LoadButton",mainMenu,"Open");
-    loadButton->getSelectCallbacks().add(this,&FiberApplication::OnLoadFiberCallBack);
+    //GLMotif::Button* loadButton=new GLMotif::Button("LoadButton",mainMenu,"Open");
+    //loadButton->getSelectCallbacks().add(this,&FiberApplication::OnLoadFiberCallBack);
 
     /*GLMotif::CascadeButton* orientationButtonCascade=new GLMotif::CascadeButton("orientationButtonCascade",mainMenu,"Orientation");
     orientationButtonCascade->setPopup(createOrientationButtonMenu());
@@ -267,6 +267,8 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
      propertiesDialog(0),
      m_fileName("")
 {
+    m_fileName = "fibers.fib";
+
     processCommandLineArguments(argc,argv);
     //Create the user interface:
     mainMenu=createMainMenu();
@@ -284,6 +286,9 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
 
     //Set the navigation transformation:
     resetNavigationCallback(0);
+
+    //Tell Vrui to run in a continuous frame sequence:
+    Vrui::updateContinuously();
 }
 
 FiberApplication::~FiberApplication(void)
@@ -302,12 +307,6 @@ void FiberApplication::frame(void)
     background threads, change the navigation transformation, etc.).
     *********************************************************************/
 
-    //we cannot initialize buffer before the initialize glew.
-    if(m_fileName != "")
-    {
-        m_fileName = "";
-        mFibers.initializeBuffer();
-    }
     //Get the time since the last frame:
     double frameTime=Vrui::getCurrentFrameTime();
 
@@ -371,6 +370,9 @@ void FiberApplication::initContext(GLContextData& contextData) const
     {
        return;
     }
+
+    //we cannot initialize buffer before the initialize glew.
+    mFibers.initializeBuffer();
 
     //Create context data item and store it in the GLContextData object:
     DataItem* dataItem=new DataItem;

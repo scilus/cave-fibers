@@ -79,14 +79,12 @@ void fiber::updateLinesShown()
     }
 }
 
-void fiber::initializeBuffer()
+void fiber::initializeBuffer() const
 {
     if( m_isInitialized)
     {
         return;
     }
-
-    m_isInitialized = true;
 
     glGenBuffers( 3, m_bufferObjects );
     glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[0] );
@@ -101,10 +99,8 @@ void fiber::initializeBuffer()
 
 void fiber::initDraw()
 {
-    if(!m_isInitialized)
-    {
-        return;
-    }
+    m_isInitialized = true;
+
     setShader();
 
     if( m_cachedThreshold != m_threshold )
@@ -121,10 +117,6 @@ void fiber::initDraw()
 
 void fiber::draw() const
 {
-    if(!m_isInitialized)
-    {
-        return;
-    }
     //draw fiber depending of the option choose by the user (It is not implemented for the moment)
     if(isUseFakeTubes())
     {

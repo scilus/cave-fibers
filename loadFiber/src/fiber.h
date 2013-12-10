@@ -34,7 +34,7 @@ public:
 
     void    updateLinesShown();
 
-    void    initializeBuffer();
+    void    initializeBuffer() const;
 
     void    draw() const;
 
