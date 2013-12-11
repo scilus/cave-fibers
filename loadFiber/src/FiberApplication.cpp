@@ -6,9 +6,21 @@
 #include <GL/GLContextData.h>
 #include <GL/GLGeometryWrappers.h>
 #include <GL/GLModels.h>
+#include <GLMotif/StyleSheet.h>
+#include <GLMotif/WidgetManager.h>
+#include <GLMotif/Blind.h>
+#include <GLMotif/Label.h>
 #include <GLMotif/Button.h>
+#include <GLMotif/CascadeButton.h>
 #include <GLMotif/Menu.h>
+#include <GLMotif/SubMenu.h>
+#include <GLMotif/Popup.h>
 #include <GLMotif/PopupMenu.h>
+#include <GLMotif/PopupWindow.h>
+#include <GLMotif/RowColumn.h>
+#include <GLMotif/TextField.h>
+#include <GLMotif/RadioBox.h>
+
 
 #include <algorithm>    // std::find
 
@@ -110,7 +122,7 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
 {
     //Create a popup shell to hold the main menu:
     GLMotif::PopupMenu* mainMenuPopup=new GLMotif::PopupMenu("MainMenuPopup",Vrui::getWidgetManager());
-    mainMenuPopup->setTitle("Vrui Demonstration");
+    mainMenuPopup->setTitle("Fiber Application");
 
     //Create the main menu itself:
     GLMotif::Menu* mainMenu=new GLMotif::Menu("MainMenu",mainMenuPopup,false);
@@ -124,7 +136,6 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
     //Add a callback to the button:
     resetNavigationButton->getSelectCallbacks().add(this,&FiberApplication::resetNavigationCallback);
 
-<<<<<<< HEAD
     //GLMotif::Button* loadButton=new GLMotif::Button("LoadButton",mainMenu,"Open");
     //loadButton->getSelectCallbacks().add(this,&FiberApplication::OnLoadFiberCallBack);
 
@@ -135,6 +146,7 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
     GLMotif::ToggleButton* showPropertiesDialogToggle=new GLMotif::ToggleButton("showPropertiesDialogToggle",mainMenu,"Show Properties Dialog");
     showPropertiesDialogToggle->setToggle(false);
     showPropertiesDialogToggle->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);*/
+
     GLMotif::ToggleButton* showSelectionBox=new GLMotif::ToggleButton("ActivateSelectionBoxToggle",mainMenu,"Activate Selection Box");
     showSelectionBox->setBorderWidth(0.0f);
     showSelectionBox->setMarginWidth(0.0f);
@@ -142,13 +154,133 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
     showSelectionBox->setToggle(m_showSelectionBox);
     showSelectionBox->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);
 
-=======
->>>>>>> change space
     //Finish building the main menu:
     mainMenu->manageChild();
 
     return mainMenuPopup;
 }
+
+
+//function for create the orientation subMenu. This orientation is for see the fiber in the choice direction
+//this function are not use for the moment
+GLMotif::Popup* FiberApplication::createOrientationButtonMenu(void)
+{
+    //Create the submenu's top-level shell:
+    GLMotif::Popup* orientationButtonMenuPopup=new GLMotif::Popup("orientationButtonMenuPopup",Vrui::getWidgetManager());
+
+    //Create the array of orientation buttons inside the top-level shell:
+    GLMotif::SubMenu* orientationButtonMenu=new GLMotif::SubMenu("orientationButtonMenu",orientationButtonMenuPopup,false);
+
+    //these callback are not implemented
+    GLMotif::Button* leftButton=new GLMotif::Button("LeftButton",orientationButtonMenu,"orientation to left");
+    leftButton->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
+
+    GLMotif::Button* frontButton=new GLMotif::Button("FrontButton",orientationButtonMenu,"orientation to front");
+    frontButton->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
+
+    GLMotif::Button* rightButton=new GLMotif::Button("RightButton",orientationButtonMenu,"orientation to right");
+    rightButton->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
+
+    GLMotif::Button* behindButton=new GLMotif::Button("BehindButton",orientationButtonMenu,"orientation to behind");
+    behindButton->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
+
+    GLMotif::Button* aboveButton=new GLMotif::Button("AboveButton",orientationButtonMenu,"orientation to above");
+    aboveButton->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
+
+    GLMotif::Button* belowButton=new GLMotif::Button("BelowButton",orientationButtonMenu,"orientation to below");
+    belowButton->getSelectCallbacks().add(this,&FiberApplication::ButtonSelectedCallBack);
+
+    /* Calculate the submenu's proper layout: */
+    orientationButtonMenu->manageChild();
+
+    /* Return the created top-level shell: */
+    return orientationButtonMenuPopup;
+}
+
+//Create the properties dialog to change the display of the fiber
+//this function are not use for the moment
+GLMotif::PopupWindow* FiberApplication::createPropertiesDialog(void)
+{
+    const GLMotif::StyleSheet& ss=*Vrui::getWidgetManager()->getStyleSheet();
+
+    GLMotif::PopupWindow* propertiesDialogPopup=new GLMotif::PopupWindow("propertiesDialogPopup",Vrui::getWidgetManager(),"Display Settings");
+    propertiesDialogPopup->setResizableFlags(true,false);
+
+    GLMotif::RowColumn* propertiesDialog=new GLMotif::RowColumn("propertiesDialog",propertiesDialogPopup,false);
+    propertiesDialog->setOrientation(GLMotif::RowColumn::VERTICAL);
+    propertiesDialog->setPacking(GLMotif::RowColumn::PACK_TIGHT);
+    propertiesDialog->setNumMinorWidgets(2);
+
+    new GLMotif::Label("MinLengthLabel",propertiesDialog,"Min Length");
+
+    GLMotif::Slider* MinLengthSlider=new GLMotif::Slider("MinLengthSlider",propertiesDialog,GLMotif::Slider::HORIZONTAL,ss.fontHeight*5.0f);
+    MinLengthSlider->setValueRange(0.0,1.0,0.001);
+    MinLengthSlider->setValue(0);
+    MinLengthSlider->getValueChangedCallbacks().add(this,&FiberApplication::sliderCallback);
+
+    new GLMotif::Label("MaxLengthLabel",propertiesDialog,"Max Length");
+
+    GLMotif::Slider* MaxLengthSlider=new GLMotif::Slider("MaxLengthSlider",propertiesDialog,GLMotif::Slider::HORIZONTAL,ss.fontHeight*5.0f);
+    MaxLengthSlider->setValueRange(0.0,1.0,0.001);
+    MaxLengthSlider->setValue(0);
+    MaxLengthSlider->getValueChangedCallbacks().add(this,&FiberApplication::sliderCallback);
+
+    new GLMotif::Label("SubsamplingLabel",propertiesDialog,"Subsampling");
+
+    GLMotif::Slider* SubsamplingSlider=new GLMotif::Slider("SubsamplingSlider",propertiesDialog,GLMotif::Slider::HORIZONTAL,ss.fontHeight*5.0f);
+    SubsamplingSlider->setValueRange(0.0,1.0,0.001);
+    SubsamplingSlider->setValue(0);
+    SubsamplingSlider->getValueChangedCallbacks().add(this,&FiberApplication::sliderCallback);
+
+    new GLMotif::Label("ThicknessLabel",propertiesDialog,"Thickness");
+
+    GLMotif::Slider* ThicknessSlider=new GLMotif::Slider("ThicknessSlider",propertiesDialog,GLMotif::Slider::HORIZONTAL,ss.fontHeight*5.0f);
+    ThicknessSlider->setValueRange(0.0,1.0,0.001);
+    ThicknessSlider->setValue(0);
+    ThicknessSlider->getValueChangedCallbacks().add(this,&FiberApplication::sliderCallback);
+
+
+    //toggle button
+    GLMotif::ToggleButton* showFakeTubeToggle=new GLMotif::ToggleButton("ShowFakeTubeToggle",propertiesDialog,"Show Fake Tube");
+    showFakeTubeToggle->setBorderWidth(0.0f);
+    showFakeTubeToggle->setMarginWidth(0.0f);
+    showFakeTubeToggle->setHAlignment(GLFont::Left);
+    showFakeTubeToggle->setToggle(useFakeTube);
+    showFakeTubeToggle->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);
+
+    GLMotif::ToggleButton* showIntersectedFibersToggle=new GLMotif::ToggleButton("ShowIntersectedFibersToggle",propertiesDialog,"Show Intersected Fibers");
+    showIntersectedFibersToggle->setBorderWidth(0.0f);
+    showIntersectedFibersToggle->setMarginWidth(0.0f);
+    showIntersectedFibersToggle->setHAlignment(GLFont::Left);
+    showIntersectedFibersToggle->setToggle(useFakeTube);
+    showIntersectedFibersToggle->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);
+
+    GLMotif::ToggleButton* LocalColoringToggle=new GLMotif::ToggleButton("LocalColoringToggle",propertiesDialog,"Local Coloring");
+    LocalColoringToggle->setBorderWidth(0.0f);
+    LocalColoringToggle->setMarginWidth(0.0f);
+    LocalColoringToggle->setHAlignment(GLFont::Left);
+    LocalColoringToggle->setToggle(useFakeTube);
+    LocalColoringToggle->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);
+
+    GLMotif::ToggleButton* ColorOverlayToggle=new GLMotif::ToggleButton("ColorOverlayToggle",propertiesDialog,"Color With Overlay");
+    ColorOverlayToggle->setBorderWidth(0.0f);
+    ColorOverlayToggle->setMarginWidth(0.0f);
+    ColorOverlayToggle->setHAlignment(GLFont::Left);
+    ColorOverlayToggle->setToggle(useFakeTube);
+    ColorOverlayToggle->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);
+
+    GLMotif::ToggleButton* ColorTransparencyToggle=new GLMotif::ToggleButton("ColorTransparencyToggle",propertiesDialog,"Color Transparency");
+    ColorTransparencyToggle->setBorderWidth(0.0f);
+    ColorTransparencyToggle->setMarginWidth(0.0f);
+    ColorTransparencyToggle->setHAlignment(GLFont::Left);
+    ColorTransparencyToggle->setToggle(useFakeTube);
+    ColorTransparencyToggle->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);
+
+    propertiesDialog->manageChild();
+
+    return propertiesDialogPopup;
+}
+
 
 void FiberApplication::resetNavigationCallback(Misc::CallbackData* cbData)
 {
@@ -178,7 +310,6 @@ std::vector<SelectionBox*>& FiberApplication::getSelectionBoxVector()
     return m_SelectionBox;
 }
 
-<<<<<<< HEAD
 void FiberApplication::OnLoadFiberCallBack(Misc::CallbackData* cbData)
 {
     if(!inLoadFiber)
@@ -263,28 +394,28 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
      propertiesDialog(0),
      m_fileName(""),
      m_showSelectionBox(true)
-=======
-FiberApplication::FiberApplication(int& argc, char**& argv, char**& appDefaults)
-    :Vrui::Application(argc,argv,appDefaults),
-     mainMenu(0)
->>>>>>> change space
 {
     //TODO create tool at launch if possible
 
+    m_fileName = "fibers.fib";
+
+    processCommandLineArguments(argc,argv);
     //Create the user interface:
     mainMenu=createMainMenu();
+
+    //create Popup Window
+    //propertiesDialog = createPropertiesDialog();
 
     //Install the main menu:
     Vrui::setMainMenu(mainMenu);
 
-    std::string fileName = "fibers.fib";
-    //load Fiber
-    mFibers.load(fileName);
+    if(m_fileName != "")
+    {
+        mFibers.load(m_fileName);
+    }
 
     //Set the navigation transformation:
     resetNavigationCallback(0);
-
-    mFibers.updateLinesShown();
 
     //Tell Vrui to run in a continuous frame sequence:
     Vrui::updateContinuously();
@@ -307,6 +438,7 @@ FiberApplication::~FiberApplication(void)
         delete *adIt;
     }
 
+    // delete propertiesDialog;
 }
 
 void FiberApplication::toolCreationCallback(Vrui::ToolManager::ToolCreationCallbackData* cbData)
@@ -379,6 +511,7 @@ void FiberApplication::frame(void)
     {
         updateSelectedFiber(&mFibers);
     }
+
     //Get the time since the last frame:
     double frameTime=Vrui::getCurrentFrameTime();
 
@@ -416,28 +549,7 @@ void FiberApplication::display(GLContextData& contextData) const
     glPushAttrib(GL_LIGHTING_BIT);
     glDisable(GL_LIGHTING);
 
-    //draw fiber depending of the option choose by the user (It is not implemented for the moment)
-    if(mFibers.isUseFakeTubes())
-    {
-        mFibers.drawFakeTubes();
-    }
-    else if(mFibers.isUseTransparency())
-    {
-        glPushAttrib( GL_ALL_ATTRIB_BITS );
-        glEnable( GL_BLEND );
-        glBlendFunc( GL_ONE, GL_ONE );
-        glDepthMask( GL_FALSE );
-        mFibers.drawSortedLines();
-        glPopAttrib();
-    }
-    else if(mFibers.isUseIntersectedFibers())
-    {
-        mFibers.drawCrossingFibers();
-    }
-    else
-    {
-        mFibers.drawFiber();
-    }
+    mFibers.draw();
 
     for(int i=0; i<m_SelectionBox.size();i++)
     {
@@ -475,7 +587,7 @@ void FiberApplication::initContext(GLContextData& contextData) const
     object for retrieval in the display method.
     *********************************************************************/
 
-    //init glew lib
+    //init glew lib, cannot init in constructor because the application not launch
     GLenum errorCode = glewInit();
 
     if( GLEW_OK != errorCode )
@@ -483,6 +595,7 @@ void FiberApplication::initContext(GLContextData& contextData) const
        return;
     }
 
+    //we cannot initialize buffer before the initialize glew.
     mFibers.initializeBuffer();
 
     //Create context data item and store it in the GLContextData object:
@@ -500,5 +613,20 @@ void FiberApplication::initContext(GLContextData& contextData) const
 
     //Finish the display list:
     glEndList();
+}
+
+void FiberApplication::processCommandLineArguments(int& argc, char**& argv)
+{
+    for (int i = 1; i < argc; ++i)
+    {
+        if (argv[i][0] == '-')
+        {
+            if (strcasecmp(argv[i] + 1, "file") == 0)
+            {
+                ++i;
+                m_fileName = argv[i];
+            }
+        }
+    }
 }
 
