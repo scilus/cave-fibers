@@ -33,7 +33,7 @@ the currect working directory to be project's main directory,
 the following steps should do the trick:
 
 > cd build
-> PKG_CONFIG_PATH=../pkgconfig/ ccmake ../
+> cmake ../
 The PKG_CONFIG_PATH is for link cmake to the Vrui librairy.
 PRESS 'c' for configuration
 PRESS 'c' again for further configuration

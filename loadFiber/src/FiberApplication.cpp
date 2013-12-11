@@ -105,14 +105,14 @@ GLMotif::PopupWindow* FiberApplication::createPropertiesDialog(void)
     propertiesDialog->setPacking(GLMotif::RowColumn::PACK_TIGHT);
     propertiesDialog->setNumMinorWidgets(2);
 
-    new GLMotif::Label("MinLenghtLabel",propertiesDialog,"Min Lenght");
+    new GLMotif::Label("MinLenghtLabel",propertiesDialog,"Min Length");
 
     GLMotif::Slider* MinLenghtSlider=new GLMotif::Slider("MinLenghtSlider",propertiesDialog,GLMotif::Slider::HORIZONTAL,ss.fontHeight*5.0f);
     MinLenghtSlider->setValueRange(0.0,1.0,0.001);
     MinLenghtSlider->setValue(0);
     MinLenghtSlider->getValueChangedCallbacks().add(this,&FiberApplication::sliderCallback);
 
-    new GLMotif::Label("MaxLenghtLabel",propertiesDialog,"Max Lenght");
+    new GLMotif::Label("MaxLenghtLabel",propertiesDialog,"Max Length");
 
     GLMotif::Slider* MaxLenghtSlider=new GLMotif::Slider("MaxLenghtSlider",propertiesDialog,GLMotif::Slider::HORIZONTAL,ss.fontHeight*5.0f);
     MaxLenghtSlider->setValueRange(0.0,1.0,0.001);
@@ -121,10 +121,10 @@ GLMotif::PopupWindow* FiberApplication::createPropertiesDialog(void)
 
     new GLMotif::Label("SubsamplingLabel",propertiesDialog,"Subsampling");
 
-    GLMotif::Slider* Subsamplinglider=new GLMotif::Slider("Subsamplinglider",propertiesDialog,GLMotif::Slider::HORIZONTAL,ss.fontHeight*5.0f);
-    Subsamplinglider->setValueRange(0.0,1.0,0.001);
-    Subsamplinglider->setValue(0);
-    Subsamplinglider->getValueChangedCallbacks().add(this,&FiberApplication::sliderCallback);
+    GLMotif::Slider* SubsamplingSlider=new GLMotif::Slider("SubsamplingSlider",propertiesDialog,GLMotif::Slider::HORIZONTAL,ss.fontHeight*5.0f);
+    SubsamplingSlider->setValueRange(0.0,1.0,0.001);
+    SubsamplingSlider->setValue(0);
+    SubsamplingSlider->getValueChangedCallbacks().add(this,&FiberApplication::sliderCallback);
 
     new GLMotif::Label("ThicknessLabel",propertiesDialog,"Thickness");
 

@@ -25,6 +25,7 @@ endif()
 
 # Setup Vrui
 
+set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:../pkgconfig/")
 PKG_SEARCH_MODULE(VRUI REQUIRED Vrui-1.0 Vrui)
 string(REPLACE "-framework;" "-framework " VRUI_LDFLAGS "${VRUI_LDFLAGS}")
 include_directories(${VRUI_INCLUDEDIR})
