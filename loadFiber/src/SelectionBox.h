@@ -21,6 +21,8 @@ public:
     typedef Fibers::Point Point;
 
     SelectionBox(Point aCenter, Point aSize);
+    SelectionBox(Point aCenter, Point aSize, bool active);
+
 
     virtual ~SelectionBox();
 
@@ -30,6 +32,7 @@ public:
 
     void toggleIsBoxSelected();
     bool isActive() const;
+    void setIsActive(const bool active);
 
     void move(const Fibers::Point& aTranslation);
     Point getCenter() const;

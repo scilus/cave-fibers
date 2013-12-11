@@ -87,6 +87,7 @@ public:
     GLMotif::PopupWindow* propertiesDialog; // The properties settings dialog
 
     Fibers mFibers;
+    bool ShowSelectionBox;
 
     std::vector<ObjectDragger*> m_objectDragger;
     std::vector<SelectionBox*> m_SelectionBox;

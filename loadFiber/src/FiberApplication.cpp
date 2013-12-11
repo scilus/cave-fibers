@@ -147,6 +147,12 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
     GLMotif::ToggleButton* showPropertiesDialogToggle=new GLMotif::ToggleButton("showPropertiesDialogToggle",mainMenu,"Show Properties Dialog");
     showPropertiesDialogToggle->setToggle(false);
     showPropertiesDialogToggle->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);*/
+    GLMotif::ToggleButton* showSelectionBox=new GLMotif::ToggleButton("ActivateSelectionBoxToggle",mainMenu,"Activate Selection Box");
+    showSelectionBox->setBorderWidth(0.0f);
+    showSelectionBox->setMarginWidth(0.0f);
+    showSelectionBox->setHAlignment(GLFont::Left);
+    showSelectionBox->setToggle(ShowSelectionBox);
+    showSelectionBox->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);
 
     //Finish building the main menu:
     mainMenu->manageChild();
@@ -296,7 +302,7 @@ void FiberApplication::OnAddSelectionBoxCallBack(Misc::CallbackData* cbData)
 
     Fibers::Point size( 10.0,10.0,10.0);
 
-    m_SelectionBox.push_back(new SelectionBox(center,size));
+    m_SelectionBox.push_back(new SelectionBox(center,size,ShowSelectionBox));
 }
 
 std::vector<SelectionBox*>& FiberApplication::getSelectionBoxVector()
@@ -337,6 +343,14 @@ void FiberApplication::menuToggleSelectCallback(GLMotif::ToggleButton::ValueChan
         {
             //Close the render dialog:
             Vrui::popdownPrimaryWidget(propertiesDialog);
+        }
+    }
+    else if (strcmp(cbData->toggle->getName(), "ActivateSelectionBoxToggle") == 0)
+    {
+        ShowSelectionBox = cbData->set;
+        for(int i=0; i<m_SelectionBox.size();i++)
+        {
+            m_SelectionBox[i]->setIsActive(ShowSelectionBox);
         }
     }
 }
@@ -463,7 +477,8 @@ void FiberApplication::updateSelectedFiber(Fibers* pFiber)
 {
     const int fibersCount( pFiber->getLineCount());
 
-    std::vector<bool> selectedFibers(fibersCount,false);
+    //if the selection box are active, initialize selectedFibers to false else initialize selectedFibers to true
+    std::vector<bool> selectedFibers(fibersCount,!ShowSelectionBox);
 
     //find all fibers that pass in selection boxes
     for(std::vector<SelectionBox*>::iterator it = m_SelectionBox.begin(); it != m_SelectionBox.end(); it++)
