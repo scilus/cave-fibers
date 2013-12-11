@@ -40,8 +40,9 @@ public:
 
     void    initializeBuffer() const;
 
-    void    drawFiber() const;
+    void    draw() const;
 
+    void    drawFiber() const;
     void    drawFakeTubes() const;
     void    drawSortedLines() const;
     void    drawCrossingFibers() const;
@@ -78,7 +79,6 @@ public:
 
     void setSelectedFiber(const std::vector<bool>& aSelectedFiber);
 
-
 private:
     bool    loadDmri(const std::string &filename );
 
@@ -91,6 +91,7 @@ private:
 
     void    setShader();
     void    releaseShader();
+    void    resetFiber();
 
     int                         m_countLines;
     int                         m_countPoints;
