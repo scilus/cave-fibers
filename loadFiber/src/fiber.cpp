@@ -856,7 +856,7 @@ void Fibers::releaseShader()
     }*/
 }
 
-void fiber::resetFiber()
+void Fibers::resetFiber()
 {
     //clear all vector
     m_linePointers.clear();
