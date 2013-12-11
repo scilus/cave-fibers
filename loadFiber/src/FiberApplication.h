@@ -7,18 +7,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <Math/Math.h>
-
-//Vrui includes
 #include <GL/GLObject.h>
-#include <GLMotif/Slider.h>
-#include <GLMotif/ToggleButton.h>
-#include <GLMotif/PopupWindow.h>
-#include <GLMotif/FileSelectionDialog.h>
-
-#include <GLMotif/Menu.h>
-#include <GLMotif/TextField.h>
-
-//Vrui includes to use the Vrui interface
 #include <Vrui/Vrui.h>
 #include <Vrui/Application.h>
 
@@ -27,7 +16,6 @@
 class FiberApplication:public Vrui::Application,public GLObject
 {
 public:
-	typedef DataSetInfo::Point Point;
 	typedef SelectionBox::ONTransform ONTransform; // Type for object positions/orientations
 
     //Embedded classes:
@@ -36,8 +24,9 @@ public:
     {
         //Elements:
         public:
-        GLuint         textureObjectId; // Texture object ID of some texture
-        GLuint         displayListId; // Display list ID of some display list
+        GLuint     	textureObjectId; // Texture object ID of some texture
+        GLuint     	displayListId; // Display list ID of some display list
+        GLuint* 	bufferObjects;
 
         //Constructors and destructors:
         DataItem(void)
@@ -82,10 +71,8 @@ public:
 
     //Elements:
     private:
-
     //Vrui parameters:
     GLMotif::PopupMenu* mainMenu; // The program's main menu
-    GLMotif::PopupWindow* propertiesDialog; // The properties settings dialog
 
     Fibers mFibers;
     bool m_showSelectionBox;
@@ -93,25 +80,10 @@ public:
     std::vector<ObjectDragger*> m_objectDragger;
     std::vector<SelectionBox*> m_SelectionBox;
 
-    std::string m_fileName;
-
-    bool useFakeTube;
-    bool inLoadFiber;
-
     //Private methods:
     GLMotif::PopupMenu* createMainMenu(void); // Creates the program's main menu
-    GLMotif::PopupWindow* createPropertiesDialog(void); // Creates the Properties settings dialog
-    GLMotif::Popup* createOrientationButtonMenu(void);
-
     void resetNavigationCallback(Misc::CallbackData* cbData); // Method to reset the Vrui navigation transformation to its default
-
     void OnAddSelectionBoxCallBack(Misc::CallbackData* cbData);
-    void OnLoadFiberCallBack(Misc::CallbackData* cbData);      // Method call when the load button are press
-    void menuToggleSelectCallback(GLMotif::ToggleButton::ValueChangedCallbackData* cbData);
-    void sliderCallback(GLMotif::Slider::ValueChangedCallbackData* cbData);
-    void loadFiberOKCallback(GLMotif::FileSelectionDialog::OKCallbackData* cbData);// Method called when the Ok button are press in FileSelectionDialog
-    void loadFiberCancelCallback(GLMotif::FileSelectionDialog::CancelCallbackData* cbData); // Method called when the cancel button are press in FileSelectionDialog
-    void ButtonSelectedCallBack(Misc::CallbackData* cbData);
 
     //Constructors and destructors:
     public:
@@ -129,8 +101,6 @@ public:
 
     //Methods from GLObject:
     virtual void initContext(GLContextData& contextData) const; // Called once upon creation of each OpenGL context
-
-    void processCommandLineArguments(int& argc, char**& argv);
 };
 
 
