@@ -3,6 +3,7 @@
 
 #include "fiber.h"
 #include "SelectionBox.h"
+#include "Anatomy.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -88,10 +89,13 @@ public:
     Fibers mFibers;
     bool m_showSelectionBox;
 
+    Anatomy mAnatomy;
+
     std::vector<ObjectDragger*> m_objectDragger;
     std::vector<SelectionBox*> m_SelectionBox;
 
-    std::string m_fileName;
+    std::string m_fiberFileName;
+    std::string m_anatomyFileName;
 
     bool useFakeTube;
     bool inLoadFiber;

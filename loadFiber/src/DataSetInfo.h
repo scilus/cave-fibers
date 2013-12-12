@@ -5,6 +5,11 @@
 #include <GL/glew.h>
 #include <Geometry/Point.h>
 
+#define X 0
+#define Y 1
+#define Z 2
+#define W 3
+
 //All type of pixel data and the type void if the type is unknown.
 enum DatasetType
 {

@@ -392,12 +392,14 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
     :Vrui::Application(argc,argv,appDefaults),
      mainMenu(0),
      propertiesDialog(0),
-     m_fileName(""),
-     m_showSelectionBox(true)
+     m_showSelectionBox(true),
+     m_fiberFileName(""),
+     m_anatomyFileName("")
 {
     //TODO create tool at launch if possible
 
-    m_fileName = "fibers.fib";
+    m_fiberFileName = "fibers.fib";
+    m_anatomyFileName = "fa.nii.gz";
 
     processCommandLineArguments(argc,argv);
     //Create the user interface:
@@ -409,9 +411,14 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
     //Install the main menu:
     Vrui::setMainMenu(mainMenu);
 
-    if(m_fileName != "")
+    if(m_fiberFileName != "")
     {
-        mFibers.load(m_fileName);
+        mFibers.load(m_fiberFileName);
+    }
+
+    if(m_anatomyFileName != "")
+    {
+        mAnatomy.load(m_anatomyFileName);
     }
 
     //Set the navigation transformation:
@@ -551,6 +558,8 @@ void FiberApplication::display(GLContextData& contextData) const
 
     mFibers.draw();
 
+    //mAnatomy.draw();
+
     for(int i=0; i<m_SelectionBox.size();i++)
     {
         m_SelectionBox[i]->draw();
@@ -621,10 +630,15 @@ void FiberApplication::processCommandLineArguments(int& argc, char**& argv)
     {
         if (argv[i][0] == '-')
         {
-            if (strcasecmp(argv[i] + 1, "file") == 0)
+            if(strcasecmp(argv[i] + 1, "filefiber") == 0)
             {
                 ++i;
-                m_fileName = argv[i];
+                m_fiberFileName = argv[i];
+            }
+            else if(strcasecmp(argv[i] + 1, "fileanatomy") == 0)
+            {
+                ++i;
+                m_anatomyFileName = argv[i];
             }
         }
     }

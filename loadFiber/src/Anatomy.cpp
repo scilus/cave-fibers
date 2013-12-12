@@ -4,13 +4,13 @@
 
 //////////////////////////////////////////////////////////////////////////
 //This function template read pixel data and put them in the vector of float.
-//It read the file volume3D per volume3D. It get the max  and min value of
+//It read the file Anatomy per Anatomy. It get the max  and min value of
 //pixel data.
 //
 //aSize Size of Vector of float.
 //arMax The Max Value of Pixel Data.
 //arMin The Min value of Pixel Data.
-//aNbBrick The number of Volume3D in the Volume.
+//aNbBrick The number of Anatomy in the Volume.
 //arFloatDataset The Vector of float.
 //arFileName The complete path of file selected.
 //////////////////////////////////////////////////////////////////////////
@@ -20,11 +20,11 @@ template <typename TypeInput> void _ReadNiftiBuffer(int aSize,float& arMax,
                                     std::vector<float>& arFloatDataset,
                                     const std::string& arFileName)
 {
-   //read data brick per brick of Volume3D
+   //read data brick per brick of Anatomy
    for(int BrickIndex=0;BrickIndex<aNbBrick;BrickIndex++)
    {
-      //open a volume 3D per Volume3D
-      int BList[1] = {BrickIndex};
+      //open a volume 3D per Anatomy
+      int BList[Y] = {BrickIndex};
       nifti_brick_list BrickList;
 
       //first param: filename
@@ -40,7 +40,7 @@ template <typename TypeInput> void _ReadNiftiBuffer(int aSize,float& arMax,
          BList,&BrickList);
 
       //put pixel data in a buffer.
-      TypeInput* pDataOut = (TypeInput*)BrickList.bricks[0];
+      TypeInput* pDataOut = (TypeInput*)BrickList.bricks[X];
       int BrickSize = aSize/aNbBrick;
 
       //Fill the Dataset
@@ -56,13 +56,10 @@ template <typename TypeInput> void _ReadNiftiBuffer(int aSize,float& arMax,
 
 Anatomy::Anatomy():
 	m_voxelSize(Anatomy::Point(0.0,0.0,0.0)),
-	m_bands(0),
-	m_frames(0),
-	m_rows(0),
-	m_columns(0),
 	m_isRGB(false),
 	m_maxPixelValue(0),
-	m_minPixelValue(0)
+	m_minPixelValue(0),
+	m_dims(4,0)
 {
 
 }
@@ -73,17 +70,41 @@ Anatomy::~Anatomy()
 
 void Anatomy::draw() const
 {
+    float   IndexColorR;
+    float   IndexColorG;
+    float   IndexColorB;
+    float   IndexColor;
 
-}
+    float* pixels = new float[m_dims[X]*m_dims[Y]*3];
 
-int Anatomy::getBands() const
-{
-	return m_bands;
-}
+    for(int y=0;y<m_dims[Y];y++)
+    {
+        for(int x=0;x<m_dims[X];x++)
+        {
+            //There are 3 color if the volume is in color
+            if (m_isRGB)
+            {
+                //the order of arguments are called differently,
+                //depending on the angle of the image
+                IndexColorR = getPixelValue(x,y,80,0);
+                IndexColorG = getPixelValue(x,y,80,1);
+                IndexColorB = getPixelValue(x,y,80,2);
+            }
+            else
+            {
+                IndexColor = getPixelValue(x,y,80,0);
+                if(IndexColor!=0)
+                {
+                    int patate = 0;
+                }
+                pixels[(3 * m_dims[X] * y)+(3 * x)] = IndexColor;
+                pixels[(3 * m_dims[X] * y)+(3 * x)+1] = IndexColor;
+                pixels[(3 * m_dims[X] * y)+(3 * x)+2] = IndexColor;
+            }
+        }
+    }
 
-int Anatomy::getColumns() const
-{
-	return m_columns;
+    glDrawPixels(m_dims[X],m_dims[Y],GL_RGB,GL_FLOAT,pixels);
 }
 
 const std::vector<float>& Anatomy::getFloatDataset() const {
@@ -94,11 +115,6 @@ const std::vector<float>& Anatomy::getFloatDataset() const {
 void Anatomy::setFloatDataset(const std::vector<float>& afloatDataset)
 {
 	m_floatDataset = afloatDataset;
-}
-
-int Anatomy::getFrames() const
-{
-	return m_frames;
 }
 
 bool Anatomy::isRgb() const
@@ -126,19 +142,69 @@ void Anatomy::setMinPixelValue(float aminPixelValue)
 	m_minPixelValue = aminPixelValue;
 }
 
-int Anatomy::getRows() const
-{
-	return m_rows;
-}
-
 void Anatomy::setVoxelSize(const Point& avoxelSize)
 {
 	m_voxelSize = avoxelSize;
 }
+//////////////////////////////////////////////////////////////////////////
+//For obtain the index of one pixel
+int Anatomy::getPixelIndex(int ax, int ay, int az) const
+{
+    //It is different if the volume is in color
+    if (m_isRGB)
+    {
+        return ((3 * m_dims[X] * m_dims[Y] * az)+(3 * m_dims[X] * ay)+(3 * ax));
+    }
+    else
+    {
+        return((m_dims[Y] * m_dims[X] * az)+(m_dims[X] * ay)+ax);
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+float Anatomy::getPixelValue(int aX, int aY, int aZ, int aColor) const
+{
+    int patat = getPixelIndex(aX,aY,aZ);
+    return m_floatDataset[getPixelIndex(aX,aY,aZ)+aColor];
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+float Anatomy::getPixelValue(int aIndex) const
+{
+    return m_floatDataset[aIndex];
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void Anatomy::setPixelValue(float aValue, int aX, int aY, int aZ,int aColor)
+{
+    m_floatDataset[getPixelIndex(aX,aY,aZ)+aColor] = aValue;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void Anatomy::setPixelValue(float aValue, int aIndex)
+{
+    m_floatDataset[aIndex] = aValue;
+}
+
+std::vector<int> Anatomy::getDimensions() const
+{
+    return m_dims;
+}
 
 bool Anatomy::load( const std::string &filename )
 {
-	std::string extension = filename.substr(filename.find_last_of(".") + 1);
+	std::string extension = filename.substr(filename.find_last_of("."));
+
+	if(extension == ".gz")
+	{
+	    extension = filename.substr(0,filename.find_last_of("."));
+	    extension = filename.substr(extension.find_last_of("."));
+	}
+
 	if(extension == ".nii.gz" || (extension == ".nii")
 	  || (extension == ".hdr") || (extension == ".img"))
 	{
@@ -151,10 +217,10 @@ bool Anatomy::load( const std::string &filename )
 		}
 
 		//size of the volume
-		m_columns = pImage->dim[1];
-		m_rows    = pImage->dim[2];
-		m_frames  = pImage->dim[3];
-		m_bands   = pImage->dim[4];
+		m_dims[X] = pImage->dim[Y];
+		m_dims[Y]    = pImage->dim[Z];
+		m_dims[Z]  = pImage->dim[W];
+		m_dims[W]   = pImage->dim[4];
 
 		int NbBrick = 1; // the number of volume 3D in the volume.
 
@@ -165,18 +231,18 @@ bool Anatomy::load( const std::string &filename )
 		}
 
 		//Voxel Size
-		m_voxelSize[0] = pImage->dx;
-		m_voxelSize[1] = pImage->dy;
-		m_voxelSize[2] = pImage->dz;
+		m_voxelSize[X] = pImage->dx;
+		m_voxelSize[Y] = pImage->dy;
+		m_voxelSize[Z] = pImage->dz;
 
-		if(m_bands<=0)
+		if(m_dims[W]<=0)
 		{
-			m_bands=1;
+		    m_dims[W]=1;
 		}
 
-		if(m_frames<=0)
+		if(m_dims[Z]<=0)
 		{
-			m_frames=1;
+		    m_dims[Z]=1;
 		}
 
 		//Check what is the type of the file
@@ -211,7 +277,7 @@ bool Anatomy::load( const std::string &filename )
 		}
 
 		//verif if the volume is in color or not
-		if(m_bands==3)
+		if(m_dims[Z]==3)
 		{
 			m_isRGB=true;
 		}
@@ -223,7 +289,7 @@ bool Anatomy::load( const std::string &filename )
 		delete pImage;
 
 		//The size of the Vector
-		int Size  = m_columns*m_rows*m_frames*m_bands;
+		int Size  = m_dims[X]*m_dims[Y]*m_dims[Z]*m_dims[W];
 		m_floatDataset.resize(Size);
 
 		//read pixel data
