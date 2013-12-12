@@ -147,6 +147,12 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
     GLMotif::ToggleButton* showPropertiesDialogToggle=new GLMotif::ToggleButton("showPropertiesDialogToggle",mainMenu,"Show Properties Dialog");
     showPropertiesDialogToggle->setToggle(false);
     showPropertiesDialogToggle->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);*/
+    GLMotif::ToggleButton* showSelectionBox=new GLMotif::ToggleButton("ActivateSelectionBoxToggle",mainMenu,"Activate Selection Box");
+    showSelectionBox->setBorderWidth(0.0f);
+    showSelectionBox->setMarginWidth(0.0f);
+    showSelectionBox->setHAlignment(GLFont::Left);
+    showSelectionBox->setToggle(m_showSelectionBox);
+    showSelectionBox->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);
 
     //Finish building the main menu:
     mainMenu->manageChild();
@@ -296,7 +302,7 @@ void FiberApplication::OnAddSelectionBoxCallBack(Misc::CallbackData* cbData)
 
     Fibers::Point size( 10.0,10.0,10.0);
 
-    m_SelectionBox.push_back(new SelectionBox(center,size));
+    m_SelectionBox.push_back(new SelectionBox(center,size,m_showSelectionBox));
 }
 
 std::vector<SelectionBox*>& FiberApplication::getSelectionBoxVector()
@@ -339,6 +345,14 @@ void FiberApplication::menuToggleSelectCallback(GLMotif::ToggleButton::ValueChan
             Vrui::popdownPrimaryWidget(propertiesDialog);
         }
     }
+    else if (strcmp(cbData->toggle->getName(), "ActivateSelectionBoxToggle") == 0)
+    {
+        m_showSelectionBox = cbData->set;
+        for(int i=0; i<m_SelectionBox.size();i++)
+        {
+            m_SelectionBox[i]->setIsActive(m_showSelectionBox);
+        }
+    }
 }
 
 //method for all slider call back
@@ -378,7 +392,8 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
     :Vrui::Application(argc,argv,appDefaults),
      mainMenu(0),
      propertiesDialog(0),
-     m_fileName("")
+     m_fileName(""),
+     m_showSelectionBox(true)
 {
     //TODO create tool at launch if possible
 
@@ -463,7 +478,8 @@ void FiberApplication::updateSelectedFiber(Fibers* pFiber)
 {
     const int fibersCount( pFiber->getLineCount());
 
-    std::vector<bool> selectedFibers(fibersCount,false);
+    //if the selection box are active, initialize selectedFibers to false else initialize selectedFibers to true
+    std::vector<bool> selectedFibers(fibersCount,!m_showSelectionBox);
 
     //find all fibers that pass in selection boxes
     for(std::vector<SelectionBox*>::iterator it = m_SelectionBox.begin(); it != m_SelectionBox.end(); it++)
@@ -541,7 +557,7 @@ void FiberApplication::display(GLContextData& contextData) const
     }
 
     //Draw the forward direction:
-    glColor3f(1.0f,0.0f,0.0f);
+    /*glColor3f(1.0f,0.0f,0.0f);
     drawArrow(Vrui::Point(6.0,0.0,0.0),arrowRadius);
 
     //Draw the up direction:
@@ -550,7 +566,7 @@ void FiberApplication::display(GLContextData& contextData) const
 
     //Draw the up direction:
     glColor3f(0.0f,0.0f,1.0f);
-    drawArrow(Vrui::Point(0.0,0.0,6.0),arrowRadius);
+    drawArrow(Vrui::Point(0.0,0.0,6.0),arrowRadius);*/
 
     glPopAttrib();
 

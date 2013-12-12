@@ -21,6 +21,19 @@ m_isActive(true)
     update();
 }
 
+SelectionBox::SelectionBox(Point aCenter, Point aSize, bool active):
+m_isSelected(false),
+m_size(aSize),
+m_center(aCenter),
+m_boxMoved(false),
+m_boxResized(false),
+m_isActive(active)
+{
+    update();
+}
+
+
+
 SelectionBox::~SelectionBox()
 {
 
@@ -159,6 +172,11 @@ void SelectionBox::toggleIsBoxSelected()
 bool SelectionBox::isActive() const
 {
     return m_isActive;
+}
+
+void SelectionBox::setIsActive(const bool active)
+{
+    m_isActive = active;
 }
 
 float SelectionBox::pickBox(Point p)
