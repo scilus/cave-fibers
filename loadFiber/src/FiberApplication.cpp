@@ -566,7 +566,7 @@ void FiberApplication::display(GLContextData& contextData) const
     }
 
     //Draw the forward direction:
-    glColor3f(1.0f,0.0f,0.0f);
+    /*glColor3f(1.0f,0.0f,0.0f);
     drawArrow(Vrui::Point(6.0,0.0,0.0),arrowRadius);
 
     //Draw the up direction:
@@ -575,7 +575,7 @@ void FiberApplication::display(GLContextData& contextData) const
 
     //Draw the up direction:
     glColor3f(0.0f,0.0f,1.0f);
-    drawArrow(Vrui::Point(0.0,0.0,6.0),arrowRadius);
+    drawArrow(Vrui::Point(0.0,0.0,6.0),arrowRadius);*/
 
     glPopAttrib();
 
