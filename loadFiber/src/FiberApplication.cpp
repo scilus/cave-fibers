@@ -154,6 +154,13 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
     showSelectionBox->setToggle(m_showSelectionBox);
     showSelectionBox->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);
 
+    GLMotif::ToggleButton* showVolume=new GLMotif::ToggleButton("ShowVolumeToggle",mainMenu,"Show Volume");
+    showVolume->setBorderWidth(0.0f);
+    showVolume->setMarginWidth(0.0f);
+    showVolume->setHAlignment(GLFont::Left);
+    showVolume->setToggle(m_showVolume);
+    showVolume->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);
+
     //Finish building the main menu:
     mainMenu->manageChild();
 
@@ -353,6 +360,11 @@ void FiberApplication::menuToggleSelectCallback(GLMotif::ToggleButton::ValueChan
             m_SelectionBox[i]->setIsActive(m_showSelectionBox);
         }
     }
+    else if (strcmp(cbData->toggle->getName(), "ShowVolumeToggle") == 0)
+    {
+        m_showVolume = cbData->set;
+        mIsoSurface->setShow(m_showVolume);
+    }
 }
 
 //method for all slider call back
@@ -394,12 +406,14 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
      propertiesDialog(0),
      m_showSelectionBox(true),
      m_fiberFileName(""),
-     m_anatomyFileName("")
+     m_anatomyFileName(""),
+     m_showVolume(true),
+     mIsoSurface(NULL)
 {
     //TODO create tool at launch if possible
 
-    m_fiberFileName = "fibers.fib";
-    m_anatomyFileName = "fa.nii.gz";
+    m_fiberFileName = "whole_brain_fa_mask_10000_correct.fib";
+    m_anatomyFileName = "tumor.nii.gz";
 
     processCommandLineArguments(argc,argv);
     //Create the user interface:
@@ -411,14 +425,17 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
     //Install the main menu:
     Vrui::setMainMenu(mainMenu);
 
-    if(m_fiberFileName != "")
-    {
-        mFibers.load(m_fiberFileName);
-    }
-
     if(m_anatomyFileName != "")
     {
         mAnatomy.load(m_anatomyFileName);
+    }
+
+    mIsoSurface = new IsoSurface(&mAnatomy,false);
+    mIsoSurface->GenerateSurface(0.2f);
+
+    if(m_fiberFileName != "")
+    {
+        mFibers.load(m_fiberFileName);
     }
 
     //Set the navigation transformation:
@@ -444,6 +461,8 @@ FiberApplication::~FiberApplication(void)
     {
         delete *adIt;
     }
+
+    delete mIsoSurface;
 
     // delete propertiesDialog;
 }
@@ -555,6 +574,11 @@ void FiberApplication::display(GLContextData& contextData) const
 
     glPushAttrib(GL_LIGHTING_BIT);
     glDisable(GL_LIGHTING);
+
+    if(mIsoSurface->IsSurfaceValid() && mIsoSurface->getShow())
+    {
+       mIsoSurface->draw();
+    }
 
     mFibers.draw();
 

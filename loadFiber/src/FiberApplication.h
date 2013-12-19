@@ -4,6 +4,7 @@
 #include "fiber.h"
 #include "SelectionBox.h"
 #include "Anatomy.h"
+#include "IsoSurface.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -88,8 +89,11 @@ public:
 
     Fibers mFibers;
     bool m_showSelectionBox;
+    bool m_showVolume;
 
     Anatomy mAnatomy;
+
+    IsoSurface* mIsoSurface;
 
     std::vector<ObjectDragger*> m_objectDragger;
     std::vector<SelectionBox*> m_SelectionBox;

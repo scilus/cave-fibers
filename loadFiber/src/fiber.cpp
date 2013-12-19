@@ -2,8 +2,6 @@
 #include <cmath>
 #include <float.h>
 #include <stdio.h>
-#include <algorithm>    // std::max
-#include <limits>       // std::numeric_limits
 
 Fibers::Fibers(void)
 :   m_colorArray(),

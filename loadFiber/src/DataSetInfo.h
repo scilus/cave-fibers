@@ -4,11 +4,14 @@
 #include <string>
 #include <GL/glew.h>
 #include <Geometry/Point.h>
+#include <Geometry/Vector.h>
+#include <GL/GLColorTemplates.h>
+#include <algorithm>
+#include <limits>       // std::numeric_limits
 
 #define X 0
 #define Y 1
 #define Z 2
-#define W 3
 
 //All type of pixel data and the type void if the type is unknown.
 enum DatasetType
@@ -24,6 +27,7 @@ enum DatasetType
    Type_FLOAT,
    Type_DOUBLE,
    Type_Fiber,
+   Type_ISO_SURFACE,
    Type_VOID,
 };
 
@@ -31,6 +35,8 @@ class DataSetInfo
 {
 public:
 	typedef Geometry::Point<float,3> Point;
+	typedef GLColor<GLfloat,4> Color; // Data type for colors
+	typedef Geometry::Vector<float,3> Vector; // Compatible vector type
 
 	DataSetInfo();
 	virtual ~DataSetInfo();
@@ -59,6 +65,8 @@ public:
 	DatasetType getType() const;
 
 	void setType(DatasetType atype);
+    const Color& getColor() const;
+    void setColor(const Color& color);
 
 protected:
 	std::string                 m_name;
@@ -68,6 +76,8 @@ protected:
 	DatasetType         		m_type;
 	float       				m_threshold;
 	GLuint*     				m_bufferObjects;
+
+	Color                       m_color;
 
 	Point						m_max;
 	Point						m_min;

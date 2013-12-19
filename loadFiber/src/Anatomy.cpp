@@ -1,6 +1,7 @@
 #include "Anatomy.h"
 
 #include "Nifti/nifti1_io.h"
+#include <math.h>
 
 //////////////////////////////////////////////////////////////////////////
 //This function template read pixel data and put them in the vector of float.
@@ -47,6 +48,8 @@ template <typename TypeInput> void _ReadNiftiBuffer(int aSize,float& arMax,
       for(int j=0;j<BrickSize;j++)
       {
          arFloatDataset[(BrickSize*BrickIndex)+j]=pDataOut[j];
+         arMin = std::min(arMin,arFloatDataset[(BrickSize*BrickIndex)+j]);
+         arMax = std::max(arMax,arFloatDataset[(BrickSize*BrickIndex)+j]);
       }
 
       delete pFileData;
@@ -59,7 +62,7 @@ Anatomy::Anatomy():
 	m_isRGB(false),
 	m_maxPixelValue(0),
 	m_minPixelValue(0),
-	m_dims(4,0)
+	m_dims(3,0)
 {
 
 }
@@ -142,6 +145,11 @@ void Anatomy::setMinPixelValue(float aminPixelValue)
 	m_minPixelValue = aminPixelValue;
 }
 
+const Anatomy::Point& Anatomy::getVoxelSize() const
+{
+    return m_voxelSize;
+}
+
 void Anatomy::setVoxelSize(const Point& avoxelSize)
 {
 	m_voxelSize = avoxelSize;
@@ -208,7 +216,11 @@ bool Anatomy::load( const std::string &filename )
 	if(extension == ".nii.gz" || (extension == ".nii")
 	  || (extension == ".hdr") || (extension == ".img"))
 	{
+	    m_minPixelValue = std::numeric_limits< float >::max();
+	    m_maxPixelValue = std::numeric_limits< float >::min();
+
 		bool LoadingSuccesful = false;
+		int bands = 0;
 		//open header
 		nifti_image* pImage = nifti_image_read(filename.c_str(),0);
 		if(!pImage)
@@ -217,10 +229,10 @@ bool Anatomy::load( const std::string &filename )
 		}
 
 		//size of the volume
-		m_dims[X] = pImage->dim[Y];
-		m_dims[Y]    = pImage->dim[Z];
-		m_dims[Z]  = pImage->dim[W];
-		m_dims[W]   = pImage->dim[4];
+		m_dims[X]   = pImage->dim[1];
+		m_dims[Y]   = pImage->dim[2];
+		m_dims[Z]   = pImage->dim[3];
+		bands       = pImage->dim[4];
 
 		int NbBrick = 1; // the number of volume 3D in the volume.
 
@@ -235,15 +247,18 @@ bool Anatomy::load( const std::string &filename )
 		m_voxelSize[Y] = pImage->dy;
 		m_voxelSize[Z] = pImage->dz;
 
-		if(m_dims[W]<=0)
+		if(bands<=0)
 		{
-		    m_dims[W]=1;
+		    bands=1;
 		}
 
 		if(m_dims[Z]<=0)
 		{
 		    m_dims[Z]=1;
 		}
+
+		m_max = Point(ceil(m_dims[X]/2),ceil(m_dims[Y]/2),ceil(m_dims[Z]/2));
+		m_min = Point(-ceil(m_dims[X]/2),-ceil(m_dims[Y]/2),-ceil(m_dims[Z]/2));
 
 		//Check what is the type of the file
 		if(pImage->datatype==DT_UNSIGNED_CHAR/*2*/)
@@ -289,7 +304,7 @@ bool Anatomy::load( const std::string &filename )
 		delete pImage;
 
 		//The size of the Vector
-		int Size  = m_dims[X]*m_dims[Y]*m_dims[Z]*m_dims[W];
+		int Size  = m_dims[X]*m_dims[Y]*m_dims[Z]*bands;
 		m_floatDataset.resize(Size);
 
 		//read pixel data

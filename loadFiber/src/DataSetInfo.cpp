@@ -94,3 +94,12 @@ void DataSetInfo::setType(DatasetType atype)
 	m_type = atype;
 }
 
+const DataSetInfo::Color& DataSetInfo::getColor() const
+{
+    return m_color;
+}
+
+void DataSetInfo::setColor(const Color& color)
+{
+    this->m_color = color;
+}
