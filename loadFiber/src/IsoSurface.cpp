@@ -403,10 +403,12 @@ void IsoSurface::generateGeometry()
         triangleEdges = m_tMesh->getTriangle( i );
         for ( int j = 0; j < 3; ++j )
         {
-            pointNormal = m_tMesh->getVertNormal( triangleEdges.pointID[j] );
+            //inverse the point order for inverse the geometry normal.
+            //Is for show the side in front of the camera
+            pointNormal = m_tMesh->getVertNormal( triangleEdges.pointID[2-j] );
             //Flip the normals by default since most isosurface loaded need their normals flipped.
             glNormal3d( -pointNormal[X], -pointNormal[Y], -pointNormal[Z]);
-            point = m_tMesh->getVertex( triangleEdges.pointID[j] );
+            point = m_tMesh->getVertex( triangleEdges.pointID[2-j] );
             glVertex3d( point[X] - m_max[X], point[Y] - m_max[Y], point[Z] - m_max[Z] );
         }
     }
