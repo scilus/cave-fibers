@@ -348,7 +348,7 @@ IsoSurface::IsoSurface(Anatomy* pAnatomy, bool IsoSurfaceFiltered)
     m_tIsoLevel = 0.40f;
     m_bValidSurface = false;
     m_positionsCalculated = false;
-    m_show = true;
+    m_show = false;
 
     m_tMesh = new TriangleMesh();
     m_color = Color(150,0,0,255);
@@ -370,11 +370,6 @@ void IsoSurface::draw() const
 {
     Color color = getColor();
     glColor3f( (float)color[0] / 255.0f, (float)color[1] / 255.0f, (float)color[2] / 255.0f );
-    if ( !m_GLuint )
-    {
-        const_cast<IsoSurface*>(this)->generateGeometry();
-    }
-
     glCallList( m_GLuint );
 }
 

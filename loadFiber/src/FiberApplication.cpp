@@ -129,12 +129,14 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
 
     //Create a button:
     GLMotif::Button* resetNavigationButton=new GLMotif::Button("ResetNavigationButton",mainMenu,"Reset Navigation");
+    //Add a callback to the button:
+    resetNavigationButton->getSelectCallbacks().add(this,&FiberApplication::resetNavigationCallback);
 
     GLMotif::Button* addSelectionBox=new GLMotif::Button("AddSelectionBox",mainMenu,"New Selection Box");
     addSelectionBox->getSelectCallbacks().add(this,&FiberApplication::OnAddSelectionBoxCallBack);
 
-    //Add a callback to the button:
-    resetNavigationButton->getSelectCallbacks().add(this,&FiberApplication::resetNavigationCallback);
+    GLMotif::Button* deleteSelectionBox=new GLMotif::Button("deleteSelectionBox",mainMenu,"delete all Selection Box");
+    deleteSelectionBox->getSelectCallbacks().add(this,&FiberApplication::deleteSelectionBoxCallBack);
 
     //GLMotif::Button* loadButton=new GLMotif::Button("LoadButton",mainMenu,"Open");
     //loadButton->getSelectCallbacks().add(this,&FiberApplication::OnLoadFiberCallBack);
@@ -154,12 +156,16 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
     showSelectionBox->setToggle(m_showSelectionBox);
     showSelectionBox->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);
 
-    GLMotif::ToggleButton* showVolume=new GLMotif::ToggleButton("ShowVolumeToggle",mainMenu,"Show Volume");
-    showVolume->setBorderWidth(0.0f);
-    showVolume->setMarginWidth(0.0f);
-    showVolume->setHAlignment(GLFont::Left);
-    showVolume->setToggle(m_showVolume);
-    showVolume->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);
+    if(mIsoSurface!=NULL)
+    {
+        GLMotif::ToggleButton* showVolume=new GLMotif::ToggleButton("ShowVolumeToggle",mainMenu,"Show Volume");
+        showVolume->setBorderWidth(0.0f);
+        showVolume->setMarginWidth(0.0f);
+        showVolume->setHAlignment(GLFont::Left);
+        showVolume->setToggle(m_showVolume);
+        showVolume->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);
+    }
+
 
     //Finish building the main menu:
     mainMenu->manageChild();
@@ -293,7 +299,7 @@ void FiberApplication::resetNavigationCallback(Misc::CallbackData* cbData)
 {
     //Reset the Vrui navigation transformation:
     Vrui::Point center = Fibers::Point::origin;
-    Vrui::Scalar radius = Geometry::dist(Fibers::Point::origin,mFibers.getBBMax());
+    Vrui::Scalar radius = Geometry::dist(Fibers::Point::origin,m_BBMax);
     Vrui::setNavigationTransformation(center, radius);
 
     /*********************************************************************
@@ -400,6 +406,17 @@ void FiberApplication::ButtonSelectedCallBack(Misc::CallbackData* cbData)
 
 }
 
+void FiberApplication::deleteSelectionBoxCallBack(Misc::CallbackData* cbData)
+{
+    //Delete all selectionBox
+    for(std::vector<SelectionBox*>::iterator adIt=m_SelectionBox.begin();adIt!=m_SelectionBox.end();++adIt)
+    {
+        delete *adIt;
+    }
+
+    m_SelectionBox.clear();
+}
+
 FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
     :Vrui::Application(argc,argv,appDefaults),
      mainMenu(0),
@@ -407,15 +424,25 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
      m_showSelectionBox(true),
      m_fiberFileName(""),
      m_anatomyFileName(""),
-     m_showVolume(true),
+     m_showVolume(false),
      mIsoSurface(NULL)
 {
     //TODO create tool at launch if possible
 
-    m_fiberFileName = "whole_brain_fa_mask_10000_correct.fib";
-    m_anatomyFileName = "tumor.nii.gz";
-
     processCommandLineArguments(argc,argv);
+
+    if(m_anatomyFileName != "")
+    {
+        mAnatomy.load(m_anatomyFileName);
+        mIsoSurface = new IsoSurface(&mAnatomy,false);
+        mIsoSurface->GenerateSurface(0.2f);
+    }
+
+    if(m_fiberFileName != "")
+    {
+        mFibers.load(m_fiberFileName);
+    }
+
     //Create the user interface:
     mainMenu=createMainMenu();
 
@@ -425,17 +452,14 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
     //Install the main menu:
     Vrui::setMainMenu(mainMenu);
 
-    if(m_anatomyFileName != "")
+    if(mFibers.getBBMax()[X] + mFibers.getBBMax()[Y] + mFibers.getBBMax()[Z] >
+        mAnatomy.getBBMax()[X] + mAnatomy.getBBMax()[Y] + mAnatomy.getBBMax()[Z])
     {
-        mAnatomy.load(m_anatomyFileName);
+        m_BBMax = mFibers.getBBMax();
     }
-
-    mIsoSurface = new IsoSurface(&mAnatomy,false);
-    mIsoSurface->GenerateSurface(0.2f);
-
-    if(m_fiberFileName != "")
+    else
     {
-        mFibers.load(m_fiberFileName);
+        m_BBMax = mAnatomy.getBBMax();
     }
 
     //Set the navigation transformation:
@@ -462,7 +486,11 @@ FiberApplication::~FiberApplication(void)
         delete *adIt;
     }
 
-    delete mIsoSurface;
+    if(mIsoSurface!=NULL)
+    {
+        delete mIsoSurface;
+        mIsoSurface = NULL;
+    }
 
     // delete propertiesDialog;
 }
@@ -575,7 +603,7 @@ void FiberApplication::display(GLContextData& contextData) const
     glPushAttrib(GL_LIGHTING_BIT);
     glDisable(GL_LIGHTING);
 
-    if(mIsoSurface->IsSurfaceValid() && mIsoSurface->getShow())
+    if(mIsoSurface!=NULL && mIsoSurface->IsSurfaceValid() && mIsoSurface->getShow())
     {
        mIsoSurface->draw();
     }
@@ -631,6 +659,11 @@ void FiberApplication::initContext(GLContextData& contextData) const
     //we cannot initialize buffer before the initialize glew.
     mFibers.initializeBuffer();
 
+    if(mIsoSurface!=NULL)
+    {
+        const_cast<IsoSurface*>(mIsoSurface)->generateGeometry();
+    }
+
     //Create context data item and store it in the GLContextData object:
     DataItem* dataItem=new DataItem;
     contextData.addDataItem(this,dataItem);
@@ -654,12 +687,12 @@ void FiberApplication::processCommandLineArguments(int& argc, char**& argv)
     {
         if (argv[i][0] == '-')
         {
-            if(strcasecmp(argv[i] + 1, "filefiber") == 0)
+            if(strcasecmp(argv[i] + 1, "fiber") == 0)
             {
                 ++i;
                 m_fiberFileName = argv[i];
             }
-            else if(strcasecmp(argv[i] + 1, "fileanatomy") == 0)
+            else if(strcasecmp(argv[i] + 1, "anat") == 0)
             {
                 ++i;
                 m_anatomyFileName = argv[i];

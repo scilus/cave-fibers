@@ -41,6 +41,8 @@ public:
     // Returns true if a valid surface has been generated.
     bool                        IsSurfaceValid();
 
+    void                        generateGeometry();
+
 private:
     // Calculates the intersection point of the isosurface with an
     // edge.
@@ -59,8 +61,6 @@ private:
     // Renames vertices and triangles so that they can be accessed more
     // efficiently.
     void            RenameVerticesAndTriangles();
-
-    void            generateGeometry();
 
     GLuint                      m_GLuint;
 

@@ -104,12 +104,15 @@ public:
     bool useFakeTube;
     bool inLoadFiber;
 
+    DataSetInfo::Point m_BBMax;
+
     //Private methods:
     GLMotif::PopupMenu* createMainMenu(void); // Creates the program's main menu
     GLMotif::PopupWindow* createPropertiesDialog(void); // Creates the Properties settings dialog
     GLMotif::Popup* createOrientationButtonMenu(void);
 
     void resetNavigationCallback(Misc::CallbackData* cbData); // Method to reset the Vrui navigation transformation to its default
+    void deleteSelectionBoxCallBack(Misc::CallbackData* cbData);
 
     void OnAddSelectionBoxCallBack(Misc::CallbackData* cbData);
     void OnLoadFiberCallBack(Misc::CallbackData* cbData);      // Method call when the load button are press
