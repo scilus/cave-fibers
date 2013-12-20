@@ -36,9 +36,9 @@ the following steps should do the trick:
 > cmake ../
 > make
 
-The poossibility to choose a file are implemented. Choose open option in context menu
 And the possibility to add file in command line are implmented to. It can be use like that:
--file "filepath'.fib"  the -file option it is for dissociated the vrui parameter to the filepath
+-fiber "filepath'.fib" fir load fibers dataset  the -fiber option it is for dissociated the vrui parameter to the filepath
+-anat "filepath'.nii.gz" for load anatomy dataset  the -anat option it is for dissociated the vrui parameter to the filepath
 
 
 Now the "build" directory should contain an executable named Cave_Fibers.
