@@ -351,7 +351,7 @@ IsoSurface::IsoSurface(Anatomy* pAnatomy, bool IsoSurfaceFiltered)
     m_show = true;
 
     m_tMesh = new TriangleMesh();
-    m_color = Color(200,200,200,255);
+    m_color = Color(150,0,0,255);
     //m_color = m_tMesh->m_defaultColor;
 }
 
