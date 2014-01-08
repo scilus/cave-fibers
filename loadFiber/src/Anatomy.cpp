@@ -25,7 +25,7 @@ template <typename TypeInput> void _ReadNiftiBuffer(int aSize,float& arMax,
    for(int BrickIndex=0;BrickIndex<aNbBrick;BrickIndex++)
    {
       //open a volume 3D per Anatomy
-      int BList[Y] = {BrickIndex};
+      int BList[Y_AXIS] = {BrickIndex};
       nifti_brick_list BrickList;
 
       //first param: filename
@@ -41,7 +41,7 @@ template <typename TypeInput> void _ReadNiftiBuffer(int aSize,float& arMax,
          BList,&BrickList);
 
       //put pixel data in a buffer.
-      TypeInput* pDataOut = (TypeInput*)BrickList.bricks[X];
+      TypeInput* pDataOut = (TypeInput*)BrickList.bricks[X_AXIS];
       int BrickSize = aSize/aNbBrick;
 
       //Fill the Dataset
@@ -51,8 +51,7 @@ template <typename TypeInput> void _ReadNiftiBuffer(int aSize,float& arMax,
          arMin = std::min(arMin,arFloatDataset[(BrickSize*BrickIndex)+j]);
          arMax = std::max(arMax,arFloatDataset[(BrickSize*BrickIndex)+j]);
       }
-
-      delete pFileData;
+      nifti_image_free(pFileData);
       delete [] pDataOut;
    }
 }
@@ -78,11 +77,11 @@ void Anatomy::draw() const
     float   IndexColorB;
     float   IndexColor;
 
-    float* pixels = new float[m_dims[X]*m_dims[Y]*3];
+    float* pixels = new float[m_dims[X_AXIS]*m_dims[Y_AXIS]*3];
 
-    for(int y=0;y<m_dims[Y];y++)
+    for(int y=0;y<m_dims[Y_AXIS];y++)
     {
-        for(int x=0;x<m_dims[X];x++)
+        for(int x=0;x<m_dims[X_AXIS];x++)
         {
             //There are 3 color if the volume is in color
             if (m_isRGB)
@@ -96,18 +95,14 @@ void Anatomy::draw() const
             else
             {
                 IndexColor = getPixelValue(x,y,80,0);
-                if(IndexColor!=0)
-                {
-                    int patate = 0;
-                }
-                pixels[(3 * m_dims[X] * y)+(3 * x)] = IndexColor;
-                pixels[(3 * m_dims[X] * y)+(3 * x)+1] = IndexColor;
-                pixels[(3 * m_dims[X] * y)+(3 * x)+2] = IndexColor;
+                pixels[(3 * m_dims[X_AXIS] * y)+(3 * x)] = IndexColor;
+                pixels[(3 * m_dims[X_AXIS] * y)+(3 * x)+1] = IndexColor;
+                pixels[(3 * m_dims[X_AXIS] * y)+(3 * x)+2] = IndexColor;
             }
         }
     }
 
-    glDrawPixels(m_dims[X],m_dims[Y],GL_RGB,GL_FLOAT,pixels);
+    glDrawPixels(m_dims[X_AXIS],m_dims[Y_AXIS],GL_RGB,GL_FLOAT,pixels);
 }
 
 const std::vector<float>& Anatomy::getFloatDataset() const {
@@ -161,11 +156,11 @@ int Anatomy::getPixelIndex(int ax, int ay, int az) const
     //It is different if the volume is in color
     if (m_isRGB)
     {
-        return ((3 * m_dims[X] * m_dims[Y] * az)+(3 * m_dims[X] * ay)+(3 * ax));
+        return ((3 * m_dims[X_AXIS] * m_dims[Y_AXIS] * az)+(3 * m_dims[X_AXIS] * ay)+(3 * ax));
     }
     else
     {
-        return((m_dims[Y] * m_dims[X] * az)+(m_dims[X] * ay)+ax);
+        return((m_dims[Y_AXIS] * m_dims[X_AXIS] * az)+(m_dims[X_AXIS] * ay)+ax);
     }
 }
 
@@ -173,7 +168,6 @@ int Anatomy::getPixelIndex(int ax, int ay, int az) const
 
 float Anatomy::getPixelValue(int aX, int aY, int aZ, int aColor) const
 {
-    int patat = getPixelIndex(aX,aY,aZ);
     return m_floatDataset[getPixelIndex(aX,aY,aZ)+aColor];
 }
 
@@ -206,11 +200,12 @@ std::vector<int> Anatomy::getDimensions() const
 bool Anatomy::load( const std::string &filename )
 {
 	std::string extension = filename.substr(filename.find_last_of("."));
+	bool LoadingSuccesful = false;
 
 	if(extension == ".gz")
 	{
-	    extension = filename.substr(0,filename.find_last_of("."));
-	    extension = filename.substr(extension.find_last_of("."));
+	    std::string baseFileName = filename.substr(0,filename.find_last_of("."));
+	    extension = filename.substr(baseFileName.find_last_of("."));
 	}
 
 	if(extension == ".nii.gz" || (extension == ".nii")
@@ -219,7 +214,6 @@ bool Anatomy::load( const std::string &filename )
 	    m_minPixelValue = std::numeric_limits< float >::max();
 	    m_maxPixelValue = std::numeric_limits< float >::min();
 
-		bool LoadingSuccesful = false;
 		int bands = 0;
 		//open header
 		nifti_image* pImage = nifti_image_read(filename.c_str(),0);
@@ -229,10 +223,10 @@ bool Anatomy::load( const std::string &filename )
 		}
 
 		//size of the volume
-		m_dims[X]   = pImage->dim[1];
-		m_dims[Y]   = pImage->dim[2];
-		m_dims[Z]   = pImage->dim[3];
-		bands       = pImage->dim[4];
+		m_dims[X_AXIS]  = pImage->dim[1];
+		m_dims[Y_AXIS]  = pImage->dim[2];
+		m_dims[Z_AXIS]  = pImage->dim[3];
+		bands           = pImage->dim[4];
 
 		int NbBrick = 1; // the number of volume 3D in the volume.
 
@@ -243,56 +237,56 @@ bool Anatomy::load( const std::string &filename )
 		}
 
 		//Voxel Size
-		m_voxelSize[X] = pImage->dx;
-		m_voxelSize[Y] = pImage->dy;
-		m_voxelSize[Z] = pImage->dz;
+		m_voxelSize[X_AXIS] = pImage->dx;
+		m_voxelSize[Y_AXIS] = pImage->dy;
+		m_voxelSize[Z_AXIS] = pImage->dz;
 
 		if(bands<=0)
 		{
 		    bands=1;
 		}
 
-		if(m_dims[Z]<=0)
+		if(m_dims[Z_AXIS]<=0)
 		{
-		    m_dims[Z]=1;
+		    m_dims[Z_AXIS]=1;
 		}
 
-		m_max = Point(ceil(m_dims[X]/2),ceil(m_dims[Y]/2),ceil(m_dims[Z]/2));
-		m_min = Point(-ceil(m_dims[X]/2),-ceil(m_dims[Y]/2),-ceil(m_dims[Z]/2));
+		m_max = Point(ceil(m_dims[X_AXIS]/2),ceil(m_dims[Y_AXIS]/2),ceil(m_dims[Z_AXIS]/2));
+		m_min = Point(-ceil(m_dims[X_AXIS]/2),-ceil(m_dims[Y_AXIS]/2),-ceil(m_dims[Z_AXIS]/2));
 
 		//Check what is the type of the file
 		if(pImage->datatype==DT_UNSIGNED_CHAR/*2*/)
 		{
-			m_type=Type_UNSIGNED_CHAR;
+			m_type=TYPE_UNSIGNED_CHAR;
 		}
 		else if(pImage->datatype==DT_SIGNED_SHORT/*4*/)
 		{
-			m_type=Type_SHORT;
+			m_type=TYPE_SHORT;
 		}
 		else if(pImage->datatype==DT_SIGNED_INT/*8*/)
 		{
-			m_type=Type_INT;
+			m_type=TYPE_INT;
 		}
 		else if(pImage->datatype== DT_FLOAT/*16*/ )
 		{
-			m_type=Type_FLOAT;
+			m_type=TYPE_FLOAT;
 		}
 		else if(pImage->datatype==DT_DOUBLE/*64*/)
 		{
-			m_type=Type_DOUBLE;
+			m_type=TYPE_DOUBLE;
 		}
 		else
 		{
-			m_type=Type_VOID;
+			m_type=TYPE_VOID;
 		}
 
-		if(m_type==Type_VOID)
+		if(m_type==TYPE_VOID)
 		{
 			LoadingSuccesful=false;
 		}
 
 		//verif if the volume is in color or not
-		if(m_dims[Z]==3)
+		if(m_dims[Z_AXIS]==3)
 		{
 			m_isRGB=true;
 		}
@@ -301,54 +295,49 @@ bool Anatomy::load( const std::string &filename )
 			m_isRGB=false;
 		}
 
-		delete pImage;
+		nifti_image_free(pImage);
 
 		//The size of the Vector
-		int Size  = m_dims[X]*m_dims[Y]*m_dims[Z]*bands;
+		int Size  = m_dims[X_AXIS]*m_dims[Y_AXIS]*m_dims[Z_AXIS]*bands;
 		m_floatDataset.resize(Size);
+		LoadingSuccesful=true;
 
 		//read pixel data
 		switch(m_type)
 		{
-		case Type_UNSIGNED_CHAR:
+		case TYPE_UNSIGNED_CHAR:
 		{
 			m_maxPixelValue=255.0;
 			_ReadNiftiBuffer<unsigned char>(Size,m_maxPixelValue,m_minPixelValue,NbBrick,m_floatDataset,filename);
-			LoadingSuccesful=true;
 		}
 		break;
-		case Type_SHORT:
+		case TYPE_SHORT:
 		{
 			_ReadNiftiBuffer<short>(Size,m_maxPixelValue,m_minPixelValue,NbBrick,m_floatDataset,filename);
-			LoadingSuccesful=true;
 		}
 		break;
-		case Type_INT:
+		case TYPE_INT:
 		{
 			_ReadNiftiBuffer<int>(Size,m_maxPixelValue,m_minPixelValue,NbBrick,m_floatDataset,filename);
-			LoadingSuccesful=true;
 		}
 		break;
-		case Type_FLOAT:
+		case TYPE_FLOAT:
 		{
 			_ReadNiftiBuffer<float>(Size,m_maxPixelValue,m_minPixelValue,NbBrick,m_floatDataset,filename);
-			LoadingSuccesful=true;
 		}
 		break;
-		case Type_DOUBLE:
+		case TYPE_DOUBLE:
 		{
 			_ReadNiftiBuffer<double>(Size,m_maxPixelValue,m_minPixelValue,NbBrick,m_floatDataset,filename);
-			LoadingSuccesful=true;
 		}
 		break;
 		default:
 		{
-			return NULL;
+		    LoadingSuccesful = false;
 		}
 		break;
 		}
-
-		return LoadingSuccesful;
 	}
-	return false;
+
+	return LoadingSuccesful;
 }

@@ -1,12 +1,11 @@
 #include "DataSetInfo.h"
 
 DataSetInfo::DataSetInfo():
-    m_type         ( Type_VOID ),
+    m_type         ( TYPE_VOID ),
     m_name         (""),
     m_fullPath     (""),
     m_threshold    ( 0.0f ),
     m_show         ( true ),
-    m_showFS( true ),
 	m_max(3,0),
 	m_min(3,0),
     m_bufferObjects( 0 )
@@ -48,31 +47,15 @@ bool DataSetInfo::toggleShow()
 	return m_show;
 }
 
-bool DataSetInfo::toggleShowFS()
-{
-	m_showFS = !m_showFS;
-	return m_showFS;
-}
-
 void DataSetInfo::setShow ( bool i_show   )
 {
 	m_show = i_show;
-}
-
-void DataSetInfo::setShowFS( bool i_show   )
-{
-	m_showFS = i_show;
 }
 
 bool DataSetInfo::getShow() const
 {
 	return m_show;
 };
-
-bool DataSetInfo::getShowFS() const
-{
-	return m_showFS;
-}
 
 DataSetInfo::Point DataSetInfo::getBBMax() const
 {

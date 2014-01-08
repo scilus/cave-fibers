@@ -294,14 +294,14 @@ IsoSurface::IsoSurface(Anatomy* pAnatomy, bool IsoSurfaceFiltered)
     m_dims = pAnatomy->getDimensions();
     m_voxelSize = pAnatomy->getVoxelSize();
 
-    m_nCellsX = m_dims[X] - 1;
-    m_nCellsY = m_dims[Y] - 1;
-    m_nCellsZ = m_dims[Z] - 1;
-    m_fCellLengthX = m_voxelSize[X];
-    m_fCellLengthY = m_voxelSize[Y];
-    m_fCellLengthZ = m_voxelSize[Z];
+    m_nCellsX = m_dims[X_AXIS] - 1;
+    m_nCellsY = m_dims[Y_AXIS] - 1;
+    m_nCellsZ = m_dims[Z_AXIS] - 1;
+    m_fCellLengthX = m_voxelSize[X_AXIS];
+    m_fCellLengthY = m_voxelSize[Y_AXIS];
+    m_fCellLengthZ = m_voxelSize[Z_AXIS];
 
-    int size = m_dims[X] * m_dims[Y] * m_dims[Z];
+    int size = m_dims[X_AXIS] * m_dims[Y_AXIS] * m_dims[Z_AXIS];
     m_ptScalarField.resize( size );
     for ( int i = 0; i < size; ++i )
     {
@@ -322,23 +322,23 @@ IsoSurface::IsoSurface(Anatomy* pAnatomy, bool IsoSurfaceFiltered)
                     std::vector< float > list;
                     for ( unsigned int zz = z - 1; zz < z + 2; ++zz )
                     {
-                        list.push_back( pAnatomy->getPixelValue( (int)(x + m_dims[X] * y + m_dims[X] * m_dims[Y] * zz )) );
-                        list.push_back( pAnatomy->getPixelValue( (int)(x - 1 + m_dims[X] * y + m_dims[X] * m_dims[Y] * zz )) );
-                        list.push_back( pAnatomy->getPixelValue( (int)(x + 1 + m_dims[X] * y + m_dims[X] * m_dims[Y] * zz )) );
-                        list.push_back( pAnatomy->getPixelValue( (int)(x + m_dims[X] * ( y - 1 ) + m_dims[X] * m_dims[Y] * zz )) );
-                        list.push_back( pAnatomy->getPixelValue( (int)(x - 1 + m_dims[X] * ( y - 1 ) + m_dims[X] * m_dims[Y] * zz )) );
-                        list.push_back( pAnatomy->getPixelValue( (int)(x + 1 + m_dims[X] * ( y - 1 ) + m_dims[X] * m_dims[Y] * zz )) );
-                        list.push_back( pAnatomy->getPixelValue( (int)(x + m_dims[X] * ( y + 1 ) + m_dims[X] * m_dims[Y] * zz )) );
-                        list.push_back( pAnatomy->getPixelValue( (int)(x - 1 + m_dims[X] * ( y + 1 ) + m_dims[X] * m_dims[Y] * zz )) );
-                        list.push_back( pAnatomy->getPixelValue( (int)(x + 1 + m_dims[X] * ( y + 1 ) + m_dims[X] * m_dims[Y] * zz )) );
+                        list.push_back( pAnatomy->getPixelValue( (int)(x + m_dims[X_AXIS] * y + m_dims[X_AXIS] * m_dims[Y_AXIS] * zz )) );
+                        list.push_back( pAnatomy->getPixelValue( (int)(x - 1 + m_dims[X_AXIS] * y + m_dims[X_AXIS] * m_dims[Y_AXIS] * zz )) );
+                        list.push_back( pAnatomy->getPixelValue( (int)(x + 1 + m_dims[X_AXIS] * y + m_dims[X_AXIS] * m_dims[Y_AXIS] * zz )) );
+                        list.push_back( pAnatomy->getPixelValue( (int)(x + m_dims[X_AXIS] * ( y - 1 ) + m_dims[X_AXIS] * m_dims[Y_AXIS] * zz )) );
+                        list.push_back( pAnatomy->getPixelValue( (int)(x - 1 + m_dims[X_AXIS] * ( y - 1 ) + m_dims[X_AXIS] * m_dims[Y_AXIS] * zz )) );
+                        list.push_back( pAnatomy->getPixelValue( (int)(x + 1 + m_dims[X_AXIS] * ( y - 1 ) + m_dims[X_AXIS] * m_dims[Y_AXIS] * zz )) );
+                        list.push_back( pAnatomy->getPixelValue( (int)(x + m_dims[X_AXIS] * ( y + 1 ) + m_dims[X_AXIS] * m_dims[Y_AXIS] * zz )) );
+                        list.push_back( pAnatomy->getPixelValue( (int)(x - 1 + m_dims[X_AXIS] * ( y + 1 ) + m_dims[X_AXIS] * m_dims[Y_AXIS] * zz )) );
+                        list.push_back( pAnatomy->getPixelValue( (int)(x + 1 + m_dims[X_AXIS] * ( y + 1 ) + m_dims[X_AXIS] * m_dims[Y_AXIS] * zz )) );
                     }
                     nth_element( list.begin(), list.begin() + 13, list.end() );
-                    m_ptScalarField[x + m_dims[X] * y + m_dims[X] * m_dims[Y] * z] = list[13];
+                    m_ptScalarField[x + m_dims[X_AXIS] * y + m_dims[X_AXIS] * m_dims[Y_AXIS] * z] = list[13];
                 }
             }
         }
     }
-    m_type = Type_ISO_SURFACE;
+    m_type = TYPE_ISO_SURFACE;
     m_threshold = 0.40f;
     m_maxPixelValue = pAnatomy->getMaxPixelValue();
 
@@ -402,9 +402,9 @@ void IsoSurface::generateGeometry()
             //Is for show the side in front of the camera
             pointNormal = m_tMesh->getVertNormal( triangleEdges.pointID[2-j] );
             //Flip the normals by default since most isosurface loaded need their normals flipped.
-            glNormal3d( -pointNormal[X], -pointNormal[Y], -pointNormal[Z]);
+            glNormal3d( -pointNormal[X_AXIS], -pointNormal[Y_AXIS], -pointNormal[Z_AXIS]);
             point = m_tMesh->getVertex( triangleEdges.pointID[2-j] );
-            glVertex3d( point[X] - m_max[X], point[Y] - m_max[Y], point[Z] - m_max[Z] );
+            glVertex3d( point[X_AXIS] - m_max[X_AXIS], point[Y_AXIS] - m_max[Y_AXIS], point[Z_AXIS] - m_max[Z_AXIS] );
         }
     }
     glEnd();
@@ -698,9 +698,9 @@ POINT3DID IsoSurface::Interpolate( float fX1, float fY1, float fZ1, float fX2, f
     float mu;
 
     mu = float( ( m_tIsoLevel - tVal1 ) ) / ( tVal2 - tVal1 );
-    interpolation.point[X] = fX1 + mu * ( fX2 - fX1 );
-    interpolation.point[Y] = fY1 + mu * ( fY2 - fY1 );
-    interpolation.point[Z] = fZ1 + mu * ( fZ2 - fZ1 );
+    interpolation.point[X_AXIS] = fX1 + mu * ( fX2 - fX1 );
+    interpolation.point[Y_AXIS] = fY1 + mu * ( fY2 - fY1 );
+    interpolation.point[Z_AXIS] = fZ1 + mu * ( fZ2 - fZ1 );
     interpolation.newID = 0;
     return interpolation;
 }
@@ -754,15 +754,15 @@ void IsoSurface::RenameVerticesAndTriangles()
     m_tMesh->resizeVerts( m_i2pt3idVertices.size() );
     m_tMesh->resizeTriangles( m_trivecTriangles.size() );
 
-    float xOff = m_voxelSize[X] * 0.5f;
-    float yOff = m_voxelSize[Y] * 0.5f;
-    float zOff = m_voxelSize[Z] * 0.5f;
+    float xOff = m_voxelSize[X_AXIS] * 0.5f;
+    float yOff = m_voxelSize[Y_AXIS] * 0.5f;
+    float zOff = m_voxelSize[Z_AXIS] * 0.5f;
 
     // Rename vertices.
     while ( mapIterator != m_i2pt3idVertices.end() )
     {
         ( *mapIterator ).second.newID = nextID;
-        m_tMesh->fastAddVert( Point( ( *mapIterator ).second.point[X] + xOff, ( *mapIterator ).second.point[Y] + yOff, ( *mapIterator ).second.point[Z] + zOff ) );
+        m_tMesh->fastAddVert( Point( ( *mapIterator ).second.point[X_AXIS] + xOff, ( *mapIterator ).second.point[Y_AXIS] + yOff, ( *mapIterator ).second.point[Z_AXIS] + zOff ) );
         nextID++;
         mapIterator++;
     }

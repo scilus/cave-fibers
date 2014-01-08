@@ -149,16 +149,8 @@ void Fibers::drawFiber() const
     glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[0] );
     glVertexPointer( 3, GL_FLOAT, 0, 0 );
 
-    if( m_showFS )
-    {
-        glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
-        glColorPointer( 3, GL_FLOAT, 0, 0 );
-    }
-    else
-    {
-        glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
-        glColorPointer( 3, GL_FLOAT, 0, 0 );
-    }
+    glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
+    glColorPointer( 3, GL_FLOAT, 0, 0 );
 
     glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
     glNormalPointer( GL_FLOAT, 0, 0 );
@@ -583,16 +575,9 @@ void Fibers::drawCrossingFibers() const
     glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[0] );
     glVertexPointer( 3, GL_FLOAT, 0, 0 );
 
-    if( m_showFS )
-    {
-        glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
-        glColorPointer( 3, GL_FLOAT, 0, 0 );
-    }
-    else
-    {
-        glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
-        glColorPointer( 3, GL_FLOAT, 0, 0 );
-    }
+    glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
+    glColorPointer( 3, GL_FLOAT, 0, 0 );
+
 
     glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
     glNormalPointer( GL_FLOAT, 0, 0 );
@@ -870,7 +855,6 @@ void Fibers::resetFiber()
     m_threshold = 0.0f;
     m_fiberColorationMode = NORMAL_COLOR;
     m_cachedThreshold = 0.0f;
-    m_showFS = true;
 
     //m_bufferObjects = new GLuint[3];
 }

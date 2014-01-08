@@ -413,7 +413,7 @@ void FiberApplication::deleteSelectionBoxCallBack(Misc::CallbackData* cbData)
     {
         delete *adIt;
     }
-
+    mFibers.setSelectedFiber(std::vector<bool> (mFibers.getLineCount(),true));
     m_SelectionBox.clear();
 }
 
@@ -452,8 +452,8 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
     //Install the main menu:
     Vrui::setMainMenu(mainMenu);
 
-    if(mFibers.getBBMax()[X] + mFibers.getBBMax()[Y] + mFibers.getBBMax()[Z] >
-        mAnatomy.getBBMax()[X] + mAnatomy.getBBMax()[Y] + mAnatomy.getBBMax()[Z])
+    if(mFibers.getBBMax()[X_AXIS] + mFibers.getBBMax()[Y_AXIS] + mFibers.getBBMax()[Z_AXIS] >
+        mAnatomy.getBBMax()[X_AXIS] + mAnatomy.getBBMax()[Y_AXIS] + mAnatomy.getBBMax()[Z_AXIS])
     {
         m_BBMax = mFibers.getBBMax();
     }
@@ -696,6 +696,14 @@ void FiberApplication::processCommandLineArguments(int& argc, char**& argv)
             {
                 ++i;
                 m_anatomyFileName = argv[i];
+            }
+            else if(strcasecmp(argv[i] + 1, "h")==0)
+            {
+                //for know which argument to use for load a file
+                printf("argument can be use for load a file\n");
+                printf("-fiber: path to a fibers dataset \n");
+                printf("-anat: path to a anatomy dataset \n");
+                exit (EXIT_SUCCESS);
             }
         }
     }
