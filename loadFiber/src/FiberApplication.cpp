@@ -1,6 +1,5 @@
 #include "FiberApplication.h"
 
-//Vrui includes
 #include <Geometry/OrthogonalTransformation.h>
 #include <GL/GLColorTemplates.h>
 #include <GL/GLVertexTemplates.h>
@@ -130,12 +129,14 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
 
     //Create a button:
     GLMotif::Button* resetNavigationButton=new GLMotif::Button("ResetNavigationButton",mainMenu,"Reset Navigation");
+    //Add a callback to the button:
+    resetNavigationButton->getSelectCallbacks().add(this,&FiberApplication::resetNavigationCallback);
 
     GLMotif::Button* addSelectionBox=new GLMotif::Button("AddSelectionBox",mainMenu,"New Selection Box");
     addSelectionBox->getSelectCallbacks().add(this,&FiberApplication::OnAddSelectionBoxCallBack);
 
-    //Add a callback to the button:
-    resetNavigationButton->getSelectCallbacks().add(this,&FiberApplication::resetNavigationCallback);
+    GLMotif::Button* deleteSelectionBox=new GLMotif::Button("deleteSelectionBox",mainMenu,"delete all Selection Box");
+    deleteSelectionBox->getSelectCallbacks().add(this,&FiberApplication::deleteSelectionBoxCallBack);
 
     //GLMotif::Button* loadButton=new GLMotif::Button("LoadButton",mainMenu,"Open");
     //loadButton->getSelectCallbacks().add(this,&FiberApplication::OnLoadFiberCallBack);
@@ -147,12 +148,24 @@ GLMotif::PopupMenu* FiberApplication::createMainMenu(void)
     GLMotif::ToggleButton* showPropertiesDialogToggle=new GLMotif::ToggleButton("showPropertiesDialogToggle",mainMenu,"Show Properties Dialog");
     showPropertiesDialogToggle->setToggle(false);
     showPropertiesDialogToggle->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);*/
+
     GLMotif::ToggleButton* showSelectionBox=new GLMotif::ToggleButton("ActivateSelectionBoxToggle",mainMenu,"Activate Selection Box");
     showSelectionBox->setBorderWidth(0.0f);
     showSelectionBox->setMarginWidth(0.0f);
     showSelectionBox->setHAlignment(GLFont::Left);
     showSelectionBox->setToggle(m_showSelectionBox);
     showSelectionBox->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);
+
+    if(mIsoSurface!=NULL)
+    {
+        GLMotif::ToggleButton* showVolume=new GLMotif::ToggleButton("ShowVolumeToggle",mainMenu,"Show Volume");
+        showVolume->setBorderWidth(0.0f);
+        showVolume->setMarginWidth(0.0f);
+        showVolume->setHAlignment(GLFont::Left);
+        showVolume->setToggle(m_showVolume);
+        showVolume->getValueChangedCallbacks().add(this,&FiberApplication::menuToggleSelectCallback);
+    }
+
 
     //Finish building the main menu:
     mainMenu->manageChild();
@@ -286,7 +299,7 @@ void FiberApplication::resetNavigationCallback(Misc::CallbackData* cbData)
 {
     //Reset the Vrui navigation transformation:
     Vrui::Point center = Fibers::Point::origin;
-    Vrui::Scalar radius = Geometry::dist(Fibers::Point::origin,mFibers.getBBMax());
+    Vrui::Scalar radius = Geometry::dist(Fibers::Point::origin,m_BBMax);
     Vrui::setNavigationTransformation(center, radius);
 
     /*********************************************************************
@@ -353,6 +366,11 @@ void FiberApplication::menuToggleSelectCallback(GLMotif::ToggleButton::ValueChan
             m_SelectionBox[i]->setIsActive(m_showSelectionBox);
         }
     }
+    else if (strcmp(cbData->toggle->getName(), "ShowVolumeToggle") == 0)
+    {
+        m_showVolume = cbData->set;
+        mIsoSurface->setShow(m_showVolume);
+    }
 }
 
 //method for all slider call back
@@ -388,18 +406,43 @@ void FiberApplication::ButtonSelectedCallBack(Misc::CallbackData* cbData)
 
 }
 
+void FiberApplication::deleteSelectionBoxCallBack(Misc::CallbackData* cbData)
+{
+    //Delete all selectionBox
+    for(std::vector<SelectionBox*>::iterator adIt=m_SelectionBox.begin();adIt!=m_SelectionBox.end();++adIt)
+    {
+        delete *adIt;
+    }
+    mFibers.setSelectedFiber(std::vector<bool> (mFibers.getLineCount(),true));
+    m_SelectionBox.clear();
+}
+
 FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
     :Vrui::Application(argc,argv,appDefaults),
      mainMenu(0),
      propertiesDialog(0),
-     m_fileName(""),
-     m_showSelectionBox(true)
+     m_showSelectionBox(true),
+     m_fiberFileName(""),
+     m_anatomyFileName(""),
+     m_showVolume(false),
+     mIsoSurface(NULL)
 {
     //TODO create tool at launch if possible
 
-    m_fileName = "fibers.fib";
-
     processCommandLineArguments(argc,argv);
+
+    if(m_anatomyFileName != "")
+    {
+        mAnatomy.load(m_anatomyFileName);
+        mIsoSurface = new IsoSurface(&mAnatomy,false);
+        mIsoSurface->GenerateSurface(0.2f);
+    }
+
+    if(m_fiberFileName != "")
+    {
+        mFibers.load(m_fiberFileName);
+    }
+
     //Create the user interface:
     mainMenu=createMainMenu();
 
@@ -409,9 +452,14 @@ FiberApplication::FiberApplication(int& argc,char**& argv,char**& appDefaults)
     //Install the main menu:
     Vrui::setMainMenu(mainMenu);
 
-    if(m_fileName != "")
+    if(mFibers.getBBMax()[X_AXIS] + mFibers.getBBMax()[Y_AXIS] + mFibers.getBBMax()[Z_AXIS] >
+        mAnatomy.getBBMax()[X_AXIS] + mAnatomy.getBBMax()[Y_AXIS] + mAnatomy.getBBMax()[Z_AXIS])
     {
-        mFibers.load(m_fileName);
+        m_BBMax = mFibers.getBBMax();
+    }
+    else
+    {
+        m_BBMax = mAnatomy.getBBMax();
     }
 
     //Set the navigation transformation:
@@ -436,6 +484,12 @@ FiberApplication::~FiberApplication(void)
     for(std::vector<SelectionBox*>::iterator adIt=m_SelectionBox.begin();adIt!=m_SelectionBox.end();++adIt)
     {
         delete *adIt;
+    }
+
+    if(mIsoSurface!=NULL)
+    {
+        delete mIsoSurface;
+        mIsoSurface = NULL;
     }
 
     // delete propertiesDialog;
@@ -549,7 +603,14 @@ void FiberApplication::display(GLContextData& contextData) const
     glPushAttrib(GL_LIGHTING_BIT);
     glDisable(GL_LIGHTING);
 
+    if(mIsoSurface!=NULL && mIsoSurface->IsSurfaceValid() && mIsoSurface->getShow())
+    {
+       mIsoSurface->draw();
+    }
+
     mFibers.draw();
+
+    //mAnatomy.draw();
 
     for(int i=0; i<m_SelectionBox.size();i++)
     {
@@ -598,6 +659,11 @@ void FiberApplication::initContext(GLContextData& contextData) const
     //we cannot initialize buffer before the initialize glew.
     mFibers.initializeBuffer();
 
+    if(mIsoSurface!=NULL)
+    {
+        const_cast<IsoSurface*>(mIsoSurface)->generateGeometry();
+    }
+
     //Create context data item and store it in the GLContextData object:
     DataItem* dataItem=new DataItem;
     contextData.addDataItem(this,dataItem);
@@ -621,10 +687,23 @@ void FiberApplication::processCommandLineArguments(int& argc, char**& argv)
     {
         if (argv[i][0] == '-')
         {
-            if (strcasecmp(argv[i] + 1, "file") == 0)
+            if(strcasecmp(argv[i] + 1, "fiber") == 0)
             {
                 ++i;
-                m_fileName = argv[i];
+                m_fiberFileName = argv[i];
+            }
+            else if(strcasecmp(argv[i] + 1, "anat") == 0)
+            {
+                ++i;
+                m_anatomyFileName = argv[i];
+            }
+            else if(strcasecmp(argv[i] + 1, "h")==0)
+            {
+                //for know which argument to use for load a file
+                printf("argument can be use for load a file\n");
+                printf("-fiber: path to a fibers dataset \n");
+                printf("-anat: path to a anatomy dataset \n");
+                exit (EXIT_SUCCESS);
             }
         }
     }

@@ -2,8 +2,6 @@
 #include <cmath>
 #include <float.h>
 #include <stdio.h>
-#include <algorithm>    // std::max
-#include <limits>       // std::numeric_limits
 
 Fibers::Fibers(void)
 :   m_colorArray(),
@@ -22,13 +20,8 @@ Fibers::Fibers(void)
     m_useFakeTubes( false ),
     m_useTransparency( false ),
     m_useIntersectedFibers(false),
-    m_threshold( 0.0f ),
     m_fiberColorationMode( NORMAL_COLOR ),
-    m_cachedThreshold( 0.0f ),
-    m_showFS( true ),
-    m_max(3,0),
-    m_min(3,0),
-    m_type(0)
+    m_cachedThreshold( 0.0f )
 {
     m_bufferObjects = new GLuint[3];
 }
@@ -156,16 +149,8 @@ void Fibers::drawFiber() const
     glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[0] );
     glVertexPointer( 3, GL_FLOAT, 0, 0 );
 
-    if( m_showFS )
-    {
-        glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
-        glColorPointer( 3, GL_FLOAT, 0, 0 );
-    }
-    else
-    {
-        glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
-        glColorPointer( 3, GL_FLOAT, 0, 0 );
-    }
+    glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
+    glColorPointer( 3, GL_FLOAT, 0, 0 );
 
     glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
     glNormalPointer( GL_FLOAT, 0, 0 );
@@ -408,6 +393,13 @@ bool Fibers::loadDmri( const std::string &filename )
     createColorArray( false );
     //m_type = FIBERS;
     m_fullPath = filename;
+    m_name = filename;
+
+    const size_t last_slash_idx = m_fullPath.rfind('\\');
+    if (std::string::npos != last_slash_idx)
+    {
+        m_name = m_fullPath.substr(last_slash_idx, m_fullPath.size());
+    }
 
     return true;
 }
@@ -583,16 +575,9 @@ void Fibers::drawCrossingFibers() const
     glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[0] );
     glVertexPointer( 3, GL_FLOAT, 0, 0 );
 
-    if( m_showFS )
-    {
-        glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
-        glColorPointer( 3, GL_FLOAT, 0, 0 );
-    }
-    else
-    {
-        glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
-        glColorPointer( 3, GL_FLOAT, 0, 0 );
-    }
+    glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[1] );
+    glColorPointer( 3, GL_FLOAT, 0, 0 );
+
 
     glBindBuffer( GL_ARRAY_BUFFER, m_bufferObjects[2] );
     glNormalPointer( GL_FLOAT, 0, 0 );
@@ -765,16 +750,6 @@ int Fibers::getStartIndexForLine( const int lineId ) const
     return m_linePointers[lineId];
 }
 
-Fibers::Point Fibers::getBBMax() const
-{
-    return m_max;
-}
-
-Fibers::Point Fibers::getBBMin() const
-{
-    return m_min;
-}
-
 bool Fibers::containsSelectionBox(Geometry::Box<float,3>  aBox)
 {
     if(m_box.contains(aBox))
@@ -880,7 +855,6 @@ void Fibers::resetFiber()
     m_threshold = 0.0f;
     m_fiberColorationMode = NORMAL_COLOR;
     m_cachedThreshold = 0.0f;
-    m_showFS = true;
 
     //m_bufferObjects = new GLuint[3];
 }

@@ -34,15 +34,11 @@ the following steps should do the trick:
 
 > cd build
 > cmake ../
-The PKG_CONFIG_PATH is for link cmake to the Vrui librairy.
-PRESS 'c' for configuration
-PRESS 'c' again for further configuration
-PRESS 'g' to generate the build system including the Makefiles.
 > make
 
-The poossibility to choose a file are implemented. Choose open option in context menu
 And the possibility to add file in command line are implmented to. It can be use like that:
--file "filepath'.fib"  the -file option it is for dissociated the vrui parameter to the filepath
+-fiber "filepath'.fib" fir load fibers dataset  the -fiber option it is for dissociated the vrui parameter to the filepath
+-anat "filepath'.nii.gz" for load anatomy dataset  the -anat option it is for dissociated the vrui parameter to the filepath
 
 
 Now the "build" directory should contain an executable named Cave_Fibers.
