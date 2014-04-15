@@ -11,7 +11,9 @@ Videos
 ------
 Here is a short demo of the current capabilities of the CaveFibers project.
 
-<iframe width="600" height="450" src="//www.youtube.com/embed/ZFP3dTne0Mw" frameborder="0" allowfullscreen></iframe>
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=ZFP3dTne0Mw
+" target="_blank"><img src="http://img.youtube.com/vi/ZFP3dTne0Mw/0.jpg" 
+alt="Link to the English demo video" width="600" height="450" border="0" /></a>
 
 The video is also available in French <a href="https://www.youtube.com/watch?v=H34m6D3rAIk" target="_blank">here</a>.
 
