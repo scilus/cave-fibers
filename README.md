@@ -23,7 +23,7 @@ Build instructions can be found in the BUILDING text file.
 
 Contributing and getting more information
 -----------------------------------------
-To contribute or get more information, you can contact @jchoude.
+To contribute or get more information, you can contact <a href="https://github.com/jchoude">@jchoude</a>.
 
 You can also visit the <a href="http://scil.dinf.usherbrooke.ca" target="_blank">SCIL</a>'s website. The SCIL was the originator of the project.
 
